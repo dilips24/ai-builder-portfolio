@@ -12,6 +12,12 @@ Week 1 (Oct 2–11): **Change Request FAQ Agent**. Keyword rules answer known qu
 
 Update this section as the weeks progress.
 
+## Tooling
+
+- Editor: Cursor. Claude Code runs in Cursor's integrated terminal (Windows, PowerShell); Cursor's own AI agent is not used.
+- Give shell commands in PowerShell syntax. Scripts in the current folder need a path, e.g. `.\script.ps1`.
+- The user commits and pushes himself; do not run `git commit` or `git push` unless asked.
+
 ## Stack
 
 - Python (use the `.venv` at the parent folder: `..\.venv\Scripts\Activate.ps1`)
@@ -19,7 +25,7 @@ Update this section as the weeks progress.
 - Streamlit for UIs, ChromaDB for vector search
 - Later: FastAPI, LangChain, LangGraph, CrewAI
 
-No build, lint or test commands exist yet. Add them here when the first project introduces them, including how to run a single test or eval.
+Run a script from this folder, e.g. `python day01\token_estimator.py`. No build, lint or test commands exist yet. Add them here when the first project introduces them, including how to run a single test or eval.
 
 ## Conventions
 
