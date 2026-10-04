@@ -1,0 +1,102 @@
+[
+  {
+    "id": "faq-01",
+    "question": "What are the different types of change we can raise, and how do I pick the right one?",
+    "expected_category": "change_types"
+  },
+  {
+    "id": "faq-02",
+    "question": "wat counts as a standrad change??",
+    "expected_category": "change_types"
+  },
+  {
+    "id": "faq-03",
+    "question": "Is a routine SIM provisioning template refresh a pre-approved change or a normal one?",
+    "expected_category": "change_types"
+  },
+  {
+    "id": "faq-04",
+    "question": "How many working days in advance must a normal change be submitted for a core network window?",
+    "expected_category": "lead_time_scheduling"
+  },
+  {
+    "id": "faq-05",
+    "question": "can i get this into tonights maintenance window if i raise it this afternoon",
+    "expected_category": "lead_time_scheduling"
+  },
+  {
+    "id": "faq-06",
+    "question": "When does the CAB meet each week, and what is the cutoff for getting my change on the agenda?",
+    "expected_category": "cab_approval"
+  },
+  {
+    "id": "faq-07",
+    "question": "Who has to sign off on a change before it goes to CAB?",
+    "expected_category": "cab_approval"
+  },
+  {
+    "id": "faq-08",
+    "question": "do ALL changes need cab approval or only the risky ones?",
+    "expected_category": "cab_approval"
+  },
+  {
+    "id": "faq-09",
+    "question": "How do I raise an emergency change while a P1 outage is still in progress?",
+    "expected_category": "emergency_change"
+  },
+  {
+    "id": "faq-10",
+    "question": "who can approve an emergency change at 3am on a sunday, we cant reach the usual people",
+    "expected_category": "emergency_change"
+  },
+  {
+    "id": "faq-11",
+    "question": "When is the next change freeze, and which systems does it cover?",
+    "expected_category": "freeze_blackout"
+  },
+  {
+    "id": "faq-12",
+    "question": "Are there any exceptions to the holiday blackout period for RAN software upgrades?",
+    "expected_category": "freeze_blackout"
+  },
+  {
+    "id": "faq-13",
+    "question": "What does a backout plan need to include before my change can be approved?",
+    "expected_category": "rollback_backout"
+  },
+  {
+    "id": "faq-14",
+    "question": "How do we decide between rolling back and fixing forward when a change goes wrong mid-window?",
+    "expected_category": "rollback_backout"
+  },
+  {
+    "id": "faq-15",
+    "question": "Where do I find the latest change request template?",
+    "expected_category": "documentation_templates"
+  },
+  {
+    "id": "faq-16",
+    "question": "whcih fields are mandatory on the CR form? my submission keeps bouncing back",
+    "expected_category": "documentation_templates"
+  },
+  {
+    "id": "faq-17",
+    "question": "My payroll shows the wrong overtime hours for last month. Who do I contact to fix it?",
+    "expected_category": "out_of_scope"
+  },
+  {
+    "id": "faq-18",
+    "question": "how do i reset my email password, it says its expired",
+    "expected_category": "out_of_scope"
+  },
+  {
+    "id": "faq-19",
+    "question": "We found a billing defect and need to push an urgent fix during the freeze. What approvals do we need?",
+    "expected_category": "emergency_change"
+  },
+  {
+    "id": "faq-20",
+    "question": "Do I need a rollback plan to get a standard change through CAB?",
+    "expected_category": "rollback_backout"
+  }
+]

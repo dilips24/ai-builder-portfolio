@@ -1,0 +1,59 @@
+id,question,expected,predicted,confidence,reason,raw_output,valid_json,correct,input_tokens,output_tokens,latency_ms,cost_usd
+faq-01,"What are the different types of change we can raise, and how do I pick the right one?",change_types,,0.0,,"```json
+{""category"": ""change_types"", ""confidence"": 0.95, ""reason"": ""Question directly asks about kinds of change (types) and how to select the appropriate one for a situation.""}
+```",False,False,291,50,1183,0.000541
+faq-02,wat counts as a standrad change??,change_types,,0.0,,"```json
+{""category"": ""change_types"", ""confidence"": 0.95, ""reason"": ""Question directly asks about the definition and criteria for standard changes, which is core change-type classification content.""}
+```",False,False,279,50,1005,0.000529
+faq-03,Is a routine SIM provisioning template refresh a pre-approved change or a normal one?,change_types,,0.0,,"```json
+{""category"": ""change_types"", ""confidence"": 0.85, ""reason"": ""Question asks about classification of a specific change type (SIM provisioning template refresh) and whether it falls under pre-approved or normal change categories.""}
+```",False,False,290,59,971,0.000585
+faq-04,How many working days in advance must a normal change be submitted for a core network window?,lead_time_scheduling,,0.0,,"```json
+{""category"": ""lead_time_scheduling"", ""confidence"": 0.95, ""reason"": ""Question directly asks about submission lead time requirements for a specific change type and maintenance window.""}
+```",False,False,289,48,918,0.000529
+faq-05,can i get this into tonights maintenance window if i raise it this afternoon,lead_time_scheduling,,0.0,,"```json
+{""category"": ""lead_time_scheduling"", ""confidence"": 0.95, ""reason"": ""Question directly asks about submission timing and fitting a change into a specific maintenance window, which is core lead-time and scheduling policy.""}
+```",False,False,286,57,1057,0.000571
+faq-06,"When does the CAB meet each week, and what is the cutoff for getting my change on the agenda?",cab_approval,,0.0,,"```json
+{""category"": ""cab_approval"", ""confidence"": 0.95, ""reason"": ""Question directly asks about CAB meeting schedule and agenda submission cutoff times.""}
+```",False,False,294,44,745,0.000514
+faq-07,Who has to sign off on a change before it goes to CAB?,cab_approval,,0.0,,"```json
+{""category"": ""cab_approval"", ""confidence"": 0.85, ""reason"": ""Question asks about approval requirements and sign-off procedures that occur before CAB review, which is directly related to CAB approval workflows.""}
+```",False,False,286,56,1040,0.000566
+faq-08,do ALL changes need cab approval or only the risky ones?,cab_approval,,0.0,,"```json
+{""category"": ""cab_approval"", ""confidence"": 0.95, ""reason"": ""Question directly asks about CAB approval requirements and which changes require it, which is core CAB approval policy.""}
+```",False,False,284,51,923,0.000539
+faq-09,How do I raise an emergency change while a P1 outage is still in progress?,emergency_change,,0.0,,"```json
+{""category"": ""emergency_change"", ""confidence"": 0.95, ""reason"": ""Question directly asks about raising an emergency change during an active P1 outage incident.""}
+```",False,False,290,47,831,0.000525
+faq-10,"who can approve an emergency change at 3am on a sunday, we cant reach the usual people",emergency_change,,0.0,,"```json
+{""category"": ""emergency_change"", ""confidence"": 0.95, ""reason"": ""Question directly addresses approval authority and process for urgent changes outside normal business hours during an incident scenario.""}
+```",False,False,291,48,959,0.000531
+faq-11,"When is the next change freeze, and which systems does it cover?",freeze_blackout,,0.0,,"```json
+{""category"": ""freeze_blackout"", ""confidence"": 0.95, ""reason"": ""Question directly asks about change freeze timing and scope coverage, which is the core topic of the freeze_blackout category.""}
+```",False,False,285,54,782,0.000555
+faq-12,Are there any exceptions to the holiday blackout period for RAN software upgrades?,freeze_blackout,,0.0,,"```json
+{""category"": ""freeze_blackout"", ""confidence"": 0.95, ""reason"": ""Question directly asks about exceptions to holiday blackout periods, which is a core freeze/blackout policy topic.""}
+```",False,False,288,52,832,0.000548
+faq-13,What does a backout plan need to include before my change can be approved?,rollback_backout,,0.0,,"```json
+{""category"": ""rollback_backout"", ""confidence"": 0.95, ""reason"": ""Question directly asks about required content of backout plans for change approval, which is core rollback/backout planning guidance.""}
+```",False,False,287,56,882,0.000567
+faq-14,How do we decide between rolling back and fixing forward when a change goes wrong mid-window?,rollback_backout,,0.0,,"```json
+{""category"": ""rollback_backout"", ""confidence"": 0.95, ""reason"": ""Question directly addresses the decision-making process between rollback and fix-forward strategies during failed changes.""}
+```",False,False,290,51,832,0.000545
+faq-15,Where do I find the latest change request template?,documentation_templates,documentation_templates,0.95,"The question directly asks about locating a change request template, which is a core documentation_templates topic.","{""category"": ""documentation_templates"", ""confidence"": 0.95, ""reason"": ""The question directly asks about locating a change request template, which is a core documentation_templates topic.""}",True,True,281,45,832,0.000506
+faq-16,whcih fields are mandatory on the CR form? my submission keeps bouncing back,documentation_templates,,0.0,,"```json
+{""category"": ""documentation_templates"", ""confidence"": 0.95, ""reason"": ""Employee is asking about mandatory fields on the change request form, which directly relates to change request templates and required documentation.""}
+```",False,False,288,52,879,0.000548
+faq-17,My payroll shows the wrong overtime hours for last month. Who do I contact to fix it?,out_of_scope,,0.0,,"```json
+{""category"": ""out_of_scope"", ""confidence"": 0.99, ""reason"": ""Payroll and overtime hour corrections are HR/payroll administration issues, not change management processes.""}
+```",False,False,291,51,1001,0.000546
+faq-18,"how do i reset my email password, it says its expired",out_of_scope,,0.0,,"```json
+{""category"": ""out_of_scope"", ""confidence"": 0.95, ""reason"": ""Password reset is an IT support/account management issue, not related to change management processes""}
+```",False,False,283,48,852,0.000523
+faq-19,We found a billing defect and need to push an urgent fix during the freeze. What approvals do we need?,emergency_change,,0.0,,"```json
+{""category"": ""emergency_change"", ""confidence"": 0.95, ""reason"": ""Question asks about urgent fix approval during a freeze period, which is the core definition of emergency change procedures.""}
+```",False,False,295,50,787,0.000545
+faq-20,Do I need a rollback plan to get a standard change through CAB?,rollback_backout,,0.0,,"```json
+{""category"": ""rollback_backout"", ""confidence"": 0.65, ""reason"": ""Question asks about rollback plan requirements, but also mentions CAB approval which suggests overlap with cab_approval category; rollback_backout is the primary focus.""}
+```",False,False,287,64,972,0.000607
