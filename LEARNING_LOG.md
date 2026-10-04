@@ -75,3 +75,37 @@ Check questions: 4 / 6.
 **What broke:** prompt-only JSON, as above. Fix: structured outputs, or strip fences before parsing if staying with prompt mode.
 
 **Decision:** use structured outputs wherever code consumes the model's JSON.
+
+## Week 1 Day 3 (Sun Oct 4): Prompt design and structured JSON output
+
+**Learn:** Structured outputs (`output_config` / `client.messages.parse` with a Pydantic model), schema as a contract, self-reported confidence. Check questions: 1.75 / 3.
+- `enum` (a `Literal` in Pydantic) limits a field's *values*; `additionalProperties: false` blocks extra *keys*; `required` blocks missing keys. A prompt-only approach can't enforce any of these: `json.loads` only checks syntax.
+- Model confidence is self-reported, not a probability. A routing threshold (e.g. 0.7) has to be calibrated against labeled data: compare confidence on correct vs wrong answers.
+- Structured outputs guarantees the *format*, not the *correctness*: a valid, allowed category can still be the wrong one. Schemas make output safe to parse; evals tell you whether it's safe to trust.
+
+**Build:**
+- `day03/faqs.json`: 20 synthetic change-request FAQs, labeled across 8 categories (incl. `out_of_scope` and ambiguous questions).
+- `day03/classify.py`: classifies each question as `{category, confidence, reason}` with `claude-haiku-4-5`, temperature 0. `--mode prompt` (JSON requested in the system prompt, parsed with `json.loads`) vs `--mode schema` (native structured outputs). Saves `results_<mode>.csv`.
+- `day03/day03_prompt_vs_schema.xlsx`: side-by-side comparison.
+
+**Numbers:**
+
+| | Prompt only | Schema |
+|---|---|---|
+| Valid JSON | 1/20 | 20/20 |
+| Accuracy | 1/20 (5%) | 20/20 (100%) |
+| Input tokens / question | 288 | 524 |
+| Output tokens / question | 52 | 50 |
+| Cost / question | $0.00055 | $0.00077 (+42%) |
+| Avg latency | 914 ms | 1,203 ms |
+| First call | 1,183 ms | 1,926 ms |
+
+- Schema mode adds ~236 input tokens per call: about +42% cost (~$7.75 vs ~$5.46 per 10,000 questions).
+- The first schema call is slowest while the schema compiles (cached 24 h).
+- 100% on 20 Claude-written questions likely means the test set is too easy. All confidences were 0.85-1.00 with no misses, so the threshold can't be calibrated yet.
+
+**What broke:** Prompt mode failed 19/20 because Haiku wrapped the JSON in ```json code fences, despite an explicit "no code fences" instruction. The classifications inside were correct: a parsing failure, not a reasoning failure. Kept as the baseline; structured outputs is the fix.
+
+**Carried over:** Task C: add 6 harder, real-world-phrased questions (faq-21 to faq-26) and check whether misses carry lower confidence.
+
+**Next:** Day 4: router: keyword rules answer known questions, everything else goes to the LLM; log path, latency and tokens.
