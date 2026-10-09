@@ -98,5 +98,41 @@
     "id": "faq-20",
     "question": "Do I need a rollback plan to get a standard change through CAB?",
     "expected_category": "rollback_backout"
+  },
+  {
+    "id": "faq-21",
+    "question": "Can i perform a code change ion production which was not yet tested ?",
+    "expected_category": "cab_approval",
+    "why_tricky": "Fits no bin cleanly: really a testing/readiness question. Closest: approvers reject changes without test evidence."
+  },
+  {
+    "id": "faq-22",
+    "question": "where i can provide rollback instructions in the change form ?",
+    "expected_category": "documentation_templates",
+    "why_tricky": "Says 'rollback' but asks WHERE on the form: a form question, not a rollback-plan question."
+  },
+  {
+    "id": "faq-23",
+    "question": "My last night change was failed in validations, how to update the change request in system?",
+    "expected_category": "documentation_templates",
+    "why_tricky": "Sounds like rollback/incident, but asks how to update the CR record."
+  },
+  {
+    "id": "faq-24",
+    "question": "Do we have CAB meeting on coming Saturday?",
+    "expected_category": "cab_approval",
+    "why_tricky": "Control question: one clear bin. Answer must say when CAB actually meets."
+  },
+  {
+    "id": "faq-25",
+    "question": "How can i get approval of a change which just got certified and Friday evening and we need to implement during weekends to avoid issues on Monday morning ?",
+    "expected_category": "lead_time_scheduling",
+    "why_tricky": "Feels urgent but nothing is broken: a late/expedited normal change, NOT an emergency. Also mentions approval."
+  },
+  {
+    "id": "faq-26",
+    "question": "when i should submit a change so it gets treated as normal change and avoid emergency change approval.",
+    "expected_category": "lead_time_scheduling",
+    "why_tricky": "Says 'emergency' twice but asks about submission lead time: keyword trap."
   }
 ]

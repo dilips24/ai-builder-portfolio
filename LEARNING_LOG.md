@@ -109,3 +109,27 @@ Check questions: 4 / 6.
 **Carried over:** Task C: add 6 harder, real-world-phrased questions (faq-21 to faq-26) and check whether misses carry lower confidence.
 
 **Next:** Day 4: router: keyword rules answer known questions, everything else goes to the LLM; log path, latency and tokens.
+
+## Week 1 Day 4, part 1 (Thu Oct 8): Rules vs LLM, plus harder test questions
+
+**Learn:** Routing: deterministic rules vs the LLM ("Building effective agents", Routing section). Check questions: 1 / 3.
+- Plain-English picture: a receptionist with a printed FAQ sheet (rules) and an expert in the back office (LLM). The router decides who takes each question.
+- Q1: Rules answer only on a single, unambiguous keyword match. Zero matches or 2+ matches go to the LLM. A confidently wrong rule answer is worse than a slower LLM answer, because no one sees it fail.
+- Q2: Rules are free per call but not free to own. They copy the policy, so every policy change means a rules change; keyword lists sprawl unless someone owns, regression-tests and monitors them. Treat rules like a configuration item under change control.
+- Q3: Move a category LLM → rules when it is high-volume, its LLM answers are repetitive and its policy is stable. Move it back when rule precision drops, most questions fall through anyway, or users keep re-asking.
+
+**Build (Task A, carried over from Day 3):**
+- Wrote 6 harder, real-world questions myself (faq-21 to faq-26) and added them to `day03/faqs.json`, each with a `why_tricky` note. They include keyword traps ("rollback" in a form question, "emergency" in a lead-time question) and an "urgent but not an emergency" case.
+- Reran `python day03\classify.py --mode schema` on all 26.
+
+**Numbers** (26 questions, schema mode):
+- Accuracy 24/26 (92%), down from 20/20 on the easier set. Valid JSON 26/26.
+- Misses: faq-21 (untested code to prod) → `change_types`, expected `cab_approval`: a **category gap**, no "testing/readiness" bin exists. faq-25 (certified Friday, needs weekend approval) → `emergency_change`, expected `lead_time_scheduling`: **urgent mistaken for an emergency**, which would push people to misuse the emergency process.
+- Avg confidence 0.92 when right vs 0.85 when wrong. Five correct answers also scored 0.85; the lowest score (faq-23, 0.65) was correct. A 0.90 trust threshold would catch both errors but also flag 6 correct answers.
+- Total cost $0.020336 (~$0.0008 per question), 14,964 tokens, avg latency 1,458 ms.
+
+**What I learned:** Easy, Claude-written test questions hide weaknesses; real phrasing exposes them. Self-reported confidence is a weak signal: useful as a safety net, not trustworthy alone. Labelling is a judgment call where domain knowledge matters.
+
+**To fix later:** Define "emergency" in the prompt/policy (something broken now vs business urgency), then test on new questions, not just faq-25, to avoid teaching to the test. Consider a testing/readiness category.
+
+**Next:** Day 4 part 2 (Fri Oct 9): Task B, the router (`policy.md`, `rules.json`, `router.py`, `router_log.csv`).
