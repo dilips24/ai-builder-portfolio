@@ -1,0 +1,50 @@
+[
+  {
+    "id": "hd-01",
+    "question": "I am planning my code change tomorrow night. Can you find our any already planned code change which may conflict withg my change?",
+    "expected_category": "lead_time_scheduling",
+    "why_tricky": "Asks the bot to LOOK UP live data (the change calendar). A FAQ bot can't do that; it needs a tool (Week 4)."
+  },
+  {
+    "id": "hd-02",
+    "question": "I have an outage in production and i want to deploy a change on priorioty. Can you advise on call number to call for initiating  an eCAB approval process?",
+    "expected_category": "emergency_change",
+    "why_tricky": "Genuine emergency (active outage). Policy names the on-call duty manager but gives no phone number."
+  },
+  {
+    "id": "hd-03",
+    "question": "my change got deployed and validated successfully . what artifact need to be attached in the CRQ( in remedy system) when closing the CRQ as sucessfull.",
+    "expected_category": "documentation_templates",
+    "why_tricky": "Uses 'CRQ' and 'Remedy' (real-world terms) instead of 'CR'. Policy covers failed closure, not successful closure."
+  },
+  {
+    "id": "hd-04",
+    "question": "Can i deploy my code change to resolve the issue of CRM screens getting freezed in heavy load time?",
+    "expected_category": "change_types",
+    "why_tricky": "'freezed' means a screen hang, not a change freeze: a word-meaning trap. A defect, not an active outage, so a normal change."
+  },
+  {
+    "id": "hd-05",
+    "question": "I feel my weblogic patching change is risky and need additional support during deployment . what should be the risk level i select in the CR form?",
+    "expected_category": "documentation_templates",
+    "why_tricky": "Mentions the CR form, but the real question is how to choose a risk level, which the policy doesn't define."
+  },
+  {
+    "id": "hd-06",
+    "question": "Can i deploy a change impacting customer service during business hours?",
+    "expected_category": "lead_time_scheduling",
+    "why_tricky": "About maintenance windows, phrased without the word 'window'."
+  },
+  {
+    "id": "hd-07",
+    "question": "do i need to mentioned list of all applications which might gets impacted by my change in the CR(CRQ) form?",
+    "expected_category": "documentation_templates",
+    "why_tricky": "Form question; policy's 'affected service and CI' field covers it only indirectly."
+  },
+  {
+    "id": "hd-08",
+    "question": "whom should i inform if my change deployment passed the approved maintenance window ?",
+    "expected_category": "lead_time_scheduling",
+    "why_tricky": "Window overrun: could also be rollback_backout. Policy doesn't say who to inform."
+  }
+]

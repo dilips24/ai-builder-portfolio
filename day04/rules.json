@@ -1,0 +1,80 @@
+{
+  "change_types": {
+    "patterns": [
+      "\\b(types?|kinds?) of change",
+      "\\bdifferent (types?|kinds?)\\b",
+      "\\bwhat (counts|is|qualifies) as an? (standard|normal|emergency) change",
+      "\\bpre ?approved\\b"
+    ],
+    "answer": "There are three change types. Standard: pre-approved, repeatable, low-risk work from the catalogue (e.g. a SIM provisioning template refresh), no CAB needed. Normal: any other planned change; needs a full CR and CAB approval. Emergency: only for something broken right now (an active outage or incident), never for business urgency or deadlines."
+  },
+  "lead_time_scheduling": {
+    "patterns": [
+      "\\blead ?times?\\b",
+      "\\bin advance\\b",
+      "\\bworking days?\\b",
+      "\\bmaintenance windows?\\b",
+      "\\bwhen\\b.{0,20}\\bsubmit",
+      "\\bweekends?\\b"
+    ],
+    "answer": "Normal changes must be submitted at least 5 working days ahead (7 for core network). Standard changes need 1 working day. Windows are Tue/Thu 00:00-04:00 for core network and Mon-Fri 00:00-05:00 for other systems. A same-day change cannot enter tonight's window as a normal change; a late or expedited normal change needs the CAB chair's agreement and is not an emergency."
+  },
+  "cab_approval": {
+    "patterns": [
+      "\\bcab\\b",
+      "\\bchange advisory\\b",
+      "\\bsign ?off\\b",
+      "\\bapprovers?\\b"
+    ],
+    "answer": "The CAB meets every Wednesday at 10:00 (no weekend meetings); the agenda cutoff is Monday 12:00. Every normal change needs CAB approval; standard changes do not. Before CAB, the technical owner and service owner must sign off, and the CAB chair gives final approval. Changes without test evidence are rejected."
+  },
+  "emergency_change": {
+    "patterns": [
+      "\\bemergency\\b",
+      "\\boutage\\b",
+      "\\bincident\\b",
+      "\\bp[12]\\b",
+      "\\burgent(ly)?\\b",
+      "\\basap\\b"
+    ],
+    "answer": "An emergency change is only for something broken right now (an active outage or incident). Raise it as type Emergency, link the incident number and phone the on-call duty manager. ECAB (on-call duty manager plus one service owner) approves; out of hours the duty manager alone may approve and must record why. A short backout plan is still required, and a retrospective review follows within 2 working days."
+  },
+  "freeze_blackout": {
+    "patterns": [
+      "\\bfreezes?\\b",
+      "\\bblackouts?\\b"
+    ],
+    "answer": "There is a quarter-end freeze (last 5 working days of each quarter, billing/charging/customer-facing systems) and a holiday blackout from 20 December to 3 January covering all production systems, including RAN upgrades. Only emergency changes for an active incident (ECAB-approved) are allowed; any other exception needs written VP of Technology approval at least 3 working days ahead."
+  },
+  "rollback_backout": {
+    "patterns": [
+      "\\broll(ing|ed)? ?back\\b",
+      "\\bback ?out\\b",
+      "\\bfix(ing)? forward\\b"
+    ],
+    "answer": "Every normal and emergency change needs a backout plan before approval: trigger, steps, owner, time needed and how success is verified, tested in pre-production where possible. Roll back if the point of no return has not been passed or a fix will not fit in the remaining window; fix forward only if the fix is known, tested and fits. If unsure, roll back, and log the decision on the CR."
+  },
+  "documentation_templates": {
+    "patterns": [
+      "\\bchange request\\b",
+      "\\b(cr|change) (form|template)s?\\b",
+      "\\bmandatory\\b",
+      "\\bfields?\\b"
+    ],
+    "answer": "The CR template is in the Change Management portal under Templates > Change Request. Mandatory fields: summary, change type, affected service and CI, risk and impact, implementation plan, backout plan, test evidence, planned start/end, technical and service owners; blank mandatory fields are returned automatically. Backout instructions go in the Backout Plan field on the Plan tab. If a change fails validation, update the original CR: set status to Failed, add closure notes and link any incident."
+  },
+  "out_of_scope": {
+    "patterns": [
+      "\\bpayroll\\b",
+      "\\bpayslips?\\b",
+      "\\bsalary\\b",
+      "\\bovertime\\b",
+      "\\bpasswords?\\b",
+      "\\bhr\\b",
+      "\\bannual leave\\b",
+      "\\bexpenses?\\b",
+      "\\blaptop\\b"
+    ],
+    "answer": "That is outside change management. For payroll, leave or other HR questions contact HR; for passwords, accounts, email or device problems contact the IT service desk."
+  }
+}

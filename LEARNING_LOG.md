@@ -133,3 +133,42 @@ Check questions: 4 / 6.
 **To fix later:** Define "emergency" in the prompt/policy (something broken now vs business urgency), then test on new questions, not just faq-25, to avoid teaching to the test. Consider a testing/readiness category.
 
 **Next:** Day 4 part 2 (Fri Oct 9): Task B, the router (`policy.md`, `rules.json`, `router.py`, `router_log.csv`).
+
+## Week 1 Day 4, part 2 (Fri Oct 9): The router, and an honest holdout test
+
+**Build:**
+- `day04/policy.md`: one-page synthetic change policy (the shared "rulebook"). Defines emergency = something broken right now; business urgency = late/expedited normal change.
+- `day04/rules.json`: keyword patterns + one canned answer per category (the "receptionist's FAQ sheet").
+- `day04/router.py`: exactly one category matches → canned answer (`rule`); zero or 2+ → `claude-haiku-4-5` with policy.md as system prompt, "answer only from the policy" (`llm`). Logs path, matches, latency, tokens, cost. `--faqs` / `--out` options added for the holdout run.
+- `day04/holdout.json`: 8 new questions I wrote without looking at the rules (hd-01 to hd-08).
+
+**Numbers, seen questions** (26 FAQs from day03):
+- Rules answered 20/26 (77%), right category 20/20, 0 ms, $0.
+- LLM answered 6/26 (typo in faq-02 matched nothing; faq-19, 20, 22, 26 matched 2 categories; faq-21 matched none). Avg 1,139 ms, $0.0094 total (~$0.0016 each).
+- All-LLM would have cost ~$0.041 → router ~77% cheaper. LLM calls cost ~2x Day 3 (~1,280 input tokens) because the whole policy goes with every question.
+- faq-25 (urgent ≠ emergency) now correct, thanks to the emergency definition in policy.md.
+
+**Catch:** Claude Code wrote rules.json and policy.md while looking at the 26 test questions (e.g. a "weekend" trigger for faq-25, policy sentences matching faq-19 and faq-24). The 100% was "seen the exam" — hence the holdout.
+
+**Numbers, holdout** (8 unseen questions):
+
+| | Seen (26) | Holdout (8) |
+|---|---|---|
+| Answered by rules | 77% | 38% (3/8) |
+| Rule picked right category | 100% | 100% (3/3) |
+| Rule answer actually answered the question | ~all | 1/3 |
+| LLM invented facts | 0 | 0/5 |
+| LLM honestly said "policy doesn't cover this" | – | 2/5 |
+
+- LLM path: $0.0083 for 5 answers, avg 1,320 ms.
+- hd-05 (which risk level?) and hd-08 (whom to inform on window overrun?) got the right-category paragraph that doesn't answer the question. Rules give one answer per category, not per question.
+- hd-04 ("CRM screens freezed"): LLM avoided the word trap and gave the normal-vs-emergency nuance.
+- hd-01 (find conflicting planned changes) needs live data lookup: a tool, not a FAQ (Week 4).
+
+**What I learned:**
+- Always test on questions the builder hasn't seen; tuned rules overfit.
+- "Right category" ≠ "user was helped". `rule_correct` measured the wrong thing; the metric that matters is answer usefulness (LLM-as-judge, Week 3).
+- Grounding ("answer only from the policy") worked: no hallucinations, honest "I don't know" with a pointer to the right place.
+- Cost/speed vs quality trade-off is real: rules are free and instant but brittle; the LLM is ~1.2 s and ~$0.0016 but handles typos, ambiguity and gaps.
+
+**Next:** Day 5: Streamlit app showing answer, path, latency and cost. Ideas to revisit: narrower rules (specific question intents, not broad topic words), an "answer useful?" column judged by hand.
