@@ -165,6 +165,8 @@ Check questions: 4 / 6.
 - hd-04 ("CRM screens freezed"): LLM avoided the word trap and gave the normal-vs-emergency nuance.
 - hd-01 (find conflicting planned changes) needs live data lookup: a tool, not a FAQ (Week 4).
 
+**My routing predictions:** 3/4 right (faq-06 rule, faq-19 LLM, faq-26 LLM). Missed faq-22: I predicted rule because it's really a form question, but "rollback" + "change form" matched 2 categories, so it went to the LLM. Lesson: the rules count keywords; they don't understand meaning.
+
 **What I learned:**
 - Always test on questions the builder hasn't seen; tuned rules overfit.
 - "Right category" ≠ "user was helped". `rule_correct` measured the wrong thing; the metric that matters is answer usefulness (LLM-as-judge, Week 3).
