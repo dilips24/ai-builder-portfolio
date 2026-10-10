@@ -10,6 +10,7 @@ Prints per-question results and a summary, and saves router_log.csv.
 
 import argparse
 import csv
+import functools
 import json
 import os
 import re
@@ -62,6 +63,11 @@ def match_categories(normalized: str, rules: dict[str, dict]) -> list[str]:
     ]
 
 
+def load_policy() -> str:
+    return POLICY_PATH.read_text(encoding="utf-8")
+
+
+@functools.cache
 def get_client() -> anthropic.Anthropic:
     load_dotenv(HERE.parent / ".env")
     api_key = os.environ.get("ANTHROPIC_API_KEY")
@@ -87,6 +93,54 @@ def ask_llm(client: anthropic.Anthropic, policy: str, question: str):
     return text.strip(), response.usage.input_tokens, response.usage.output_tokens
 
 
+def compute_cost(input_tokens: int, output_tokens: int) -> float:
+    return (
+        input_tokens / 1_000_000 * INPUT_PRICE_PER_MTOK
+        + output_tokens / 1_000_000 * OUTPUT_PRICE_PER_MTOK
+    )
+
+
+def route(
+    question: str,
+    rules: dict[str, dict],
+    policy: str,
+    client: anthropic.Anthropic | None,
+) -> dict:
+    """Answer one question: rules if exactly one category matches, else the LLM.
+
+    client may be None; it is then created on the first LLM call, so an
+    all-rules run needs no API key. latency_ms and cost_usd are unrounded.
+    """
+    start = time.perf_counter()
+    matched = match_categories(normalize(question), rules)
+
+    if len(matched) == 1:
+        path = "rule"
+        answer = rules[matched[0]]["answer"]
+        input_tokens = output_tokens = 0
+    else:
+        path = "llm"
+        if client is None:
+            client = get_client()
+        try:
+            answer, input_tokens, output_tokens = ask_llm(client, policy, question)
+        except anthropic.AuthenticationError:
+            sys.exit("Error: the API rejected ANTHROPIC_API_KEY. Check the key in .env.")
+        except anthropic.APIError as e:
+            sys.exit(f"Error: API call failed ({type(e).__name__}): {e.message}")
+    latency_ms = (time.perf_counter() - start) * 1000
+
+    return {
+        "path": path,
+        "matched_categories": matched,
+        "answer": answer,
+        "latency_ms": latency_ms,
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+        "cost_usd": compute_cost(input_tokens, output_tokens),
+    }
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -109,9 +163,8 @@ def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")  # ✓/✗ must print when piped on Windows
 
     rules = load_rules()
-    policy = POLICY_PATH.read_text(encoding="utf-8")
+    policy = load_policy()
     faqs = json.loads(args.faqs.read_text(encoding="utf-8"))
-    client = None  # created on the first LLM call, so an all-rules run needs no key
 
     print(f"Model: {MODEL} | temperature: {TEMPERATURE} | questions: {len(faqs)}\n")
 
@@ -119,31 +172,10 @@ def main() -> None:
     for faq in faqs:
         question = faq["question"]
         expected = faq["expected_category"]
-        start = time.perf_counter()
-        matched = match_categories(normalize(question), rules)
-
-        if len(matched) == 1:
-            path = "rule"
-            answer = rules[matched[0]]["answer"]
-            input_tokens = output_tokens = 0
-            rule_correct = matched[0] == expected
-        else:
-            path = "llm"
-            rule_correct = ""
-            if client is None:
-                client = get_client()
-            try:
-                answer, input_tokens, output_tokens = ask_llm(client, policy, question)
-            except anthropic.AuthenticationError:
-                sys.exit("Error: the API rejected ANTHROPIC_API_KEY. Check the key in .env.")
-            except anthropic.APIError as e:
-                sys.exit(f"Error: API call failed ({type(e).__name__}): {e.message}")
-        latency_ms = (time.perf_counter() - start) * 1000
-
-        cost = (
-            input_tokens / 1_000_000 * INPUT_PRICE_PER_MTOK
-            + output_tokens / 1_000_000 * OUTPUT_PRICE_PER_MTOK
-        )
+        result = route(question, rules, policy, None)  # client created lazily on first LLM call
+        path = result["path"]
+        matched = result["matched_categories"]
+        rule_correct = matched[0] == expected if path == "rule" else ""
         rows.append(
             {
                 "id": faq["id"],
@@ -152,11 +184,11 @@ def main() -> None:
                 "matched_categories": "|".join(matched),
                 "expected_category": expected,
                 "rule_correct": rule_correct,
-                "latency_ms": round(latency_ms),
-                "input_tokens": input_tokens,
-                "output_tokens": output_tokens,
-                "cost_usd": round(cost, 6),
-                "answer": answer,
+                "latency_ms": round(result["latency_ms"]),
+                "input_tokens": result["input_tokens"],
+                "output_tokens": result["output_tokens"],
+                "cost_usd": round(result["cost_usd"], 6),
+                "answer": result["answer"],
             }
         )
         mark = "" if path == "llm" else ("✓" if rule_correct else "✗")

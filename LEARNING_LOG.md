@@ -174,3 +174,42 @@ Check questions: 4 / 6.
 - Cost/speed vs quality trade-off is real: rules are free and instant but brittle; the LLM is ~1.2 s and ~$0.0016 but handles typos, ambiguity and gaps.
 
 **Next:** Day 5: Streamlit app showing answer, path, latency and cost. Ideas to revisit: narrower rules (specific question intents, not broad topic words), an "answer useful?" column judged by hand.
+
+## Week 1 Day 5 (Sat Oct 10): Streamlit app for the FAQ Agent
+
+**Learn:** Streamlit basics (Basic concepts docs). Check questions: 2.5 / 3.
+- Streamlit reruns the whole script on every interaction (every click, not every visit). Uncached setup (loading rules/policy, creating the API client) would repeat on every click: slow and wasteful, though not an API cost — only sending a question costs money. Fix: `@st.cache_resource`. `st.session_state` keeps history across reruns.
+- One shared `route()` function: one place to fix, the app and the eval script can't drift, and every eval run tests the exact code users hit.
+- Cost, latency and path are operator metrics (verify routing, tune rules, track cost vs budget). End users need the answer, its source, an AI-generated note, a 👍/👎 and an escalation path.
+
+**Build:**
+- Installed Streamlit; `requirements.txt` updated with `Set-Content -Encoding ascii`.
+- Refactored `day04/router.py`: extracted `route(question, rules, policy, client)` plus loader functions; `main()` uses it.
+- **Regression test** after the refactor: reran all 26 questions. Same 20 rule / 6 LLM split, all 20 rule answers identical, rule precision 20/20. Only LLM latency changed — and faq-02's wording (55 → 75 output tokens) even at temperature 0.
+- `day05/app.py`: ask a question or pick an example; shows answer, ⚡ Rule / 🤖 AI badge, matched categories, latency, tokens, cost; session history with running totals; sidebar toggles "Send everything to AI (rules off)" and "Show operator details". Run: `streamlit run day05\app.py`.
+
+**Numbers, rules on vs off:**
+
+| Question | Rules on | Rules off (all AI) |
+|---|---|---|
+| When does the CAB meet? | 0 ms, $0 | 1,201 ms, $0.001571 (1,271 in / 60 out) |
+| SIM template refresh: pre-approved or normal? | 0 ms, $0 | 1,237 ms, $0.001573 (1,283 in / 58 out) |
+
+- AI cost is ~$0.0016 per answer whatever the question, because ~1,270 of the input tokens are the policy sent with every call. Forecast = questions reaching the AI × ~$0.0016. At 10,000/day for one question: ~$16/day (~$470/month) vs $0. Prompt caching would cut the policy cost.
+
+**Live testing with new questions of my own** (rules on):
+- faq-22 → AI and hd-05 → Rule, as on Day 4.
+- "what is daily cab meeting time?" → Rule, cab_approval ✓ (answer corrects the premise: weekly, Wednesday).
+- "outage… fix tested… deploy tonight, which change type?" → Rule, emergency_change ✓.
+- "what all details needed when i am submitting a standard change?" → Rule, **lead_time_scheduling ✗** (should be documentation_templates). Caused by the `when … submit` pattern Claude Code added on Day 4 to pass faq-26: a rule tuned to one test question misfired on a new one — instant, free and confidently wrong.
+- "deployment steps and resources for an approved change?" → AI, no match, 2,146 ms, $0.001854.
+
+**What broke:**
+- Turning "Show operator details" off also hid the example-questions dropdown: Claude Code put it inside the operator section — a product decision I didn't ask for. Examples help end users too, so they belong in both views. Fix: move the dropdown out of `if operator:`.
+
+**What I learned:**
+- Even at temperature 0 the LLM isn't byte-for-byte repeatable; regression checks should assert on path, category and key facts, not exact wording.
+- AI coding tools fill gaps with their own product guesses: review the plan and test the result.
+- Tuned keyword rules keep misfiring on unseen phrasing; the router needs narrower, intent-level rules or fewer rules.
+
+**Next:** Day 6 (Sun Oct 11): README with results table and Mermaid architecture diagram; Week 1 check-in.

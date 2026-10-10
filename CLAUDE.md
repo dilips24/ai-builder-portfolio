@@ -25,7 +25,7 @@ Update this section as the weeks progress.
 - Streamlit for UIs, ChromaDB for vector search
 - Later: FastAPI, LangChain, LangGraph, CrewAI
 
-Run a script from this folder, e.g. `python day01\token_estimator.py`. No build, lint or test commands exist yet. Add them here when the first project introduces them, including how to run a single test or eval.
+Run a script from this folder, e.g. `python day01\token_estimator.py`. Run the Streamlit FAQ app from this folder with `streamlit run day05\app.py` (venv active). No build, lint or test commands exist yet. Add them here when the first project introduces them, including how to run a single test or eval.
 
 ## Conventions
 
