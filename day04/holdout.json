@@ -46,5 +46,41 @@
     "question": "whom should i inform if my change deployment passed the approved maintenance window ?",
     "expected_category": "lead_time_scheduling",
     "why_tricky": "Window overrun: could also be rollback_backout. Policy doesn't say who to inform."
+  },
+  {
+    "id": "hd-09",
+    "question": "Can you list down all changes approved for tonight deployment so i can identify the required resorces for my change?",
+    "expected_category": "change_types",
+    "why_tricky": "List of approved changes is not a normal FAQ question; it's a tool request."
+  },
+  {
+    "id": "hd-10",
+    "question": "What is the maximum time allowed to validate a change post deployment?",
+    "expected_category": "documentation_templates",
+    "why_tricky": "Validation times should be part of overall approved maitenence window time and must need to be completed within the window."
+  },
+  {
+    "id": "hd-11",
+    "question": "One of my team member perform a change beyond the approved scope of the change request. How should i handle this situation?",
+    "expected_category": "change_types",
+    "why_tricky": "Change beyond the approved scope is not a normal FAQ question; it's a policy question."
+  },
+  {
+    "id": "hd-12",
+    "question": "Can you please provide the change management policy documents for my reference?",
+    "expected_category": "documentation_templates",
+    "why_tricky": "This is a standarde request for policy documents."
+  },
+  {
+    "id": "hd-13",
+    "question": "whome should i approach if i see my change not listed in the agenda of today's cab meeting?",
+    "expected_category": "cab_approval",
+    "why_tricky": "This is a standarde request for policy documents."
+  },
+  {
+    "id": "hd-14",
+    "question": "what approach i should i take when i identify a conflict with my change before the deployment schedule. How to handle this situation and whome to contact?",
+    "expected_category": "change_types",
+    "why_tricky": "Conflict with existing change before deployment schedule is not a normal FAQ question; it's a policy question."
   }
 ]
