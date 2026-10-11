@@ -119,8 +119,6 @@ Notes: p95 is nearest-rank (with fewer than 20 answers it is effectively the max
 
 ### When should you use rules instead of an LLM?
 
-*Draft from my results; to be rewritten in my own words.*
-
 Use rules for narrow, high-volume questions that have exactly one stable answer, like "this is out of scope, contact HR". There they were 100% useful, free and instant. Don't use broad topic rules: on new questions they picked the right topic 80% of the time but helped only 10% of the time, and per useful answer they saved nothing compared with sending everything to the LLM. Every rule also has an owner cost: it copies the policy, has to change when the policy changes, and fails silently when it misfires, so rules belong under change control with a regression test. Forecast cost on unseen questions (holdout), not on the questions the rules were tuned on, and promote a question to a rule only after the logs show it is frequent and its answer never varies.
 
 ### What I would do next

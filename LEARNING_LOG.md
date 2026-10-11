@@ -213,3 +213,48 @@ Check questions: 4 / 6.
 - Tuned keyword rules keep misfiring on unseen phrasing; the router needs narrower, intent-level rules or fewer rules.
 
 **Next:** Day 6 (Sun Oct 11): README with results table and Mermaid architecture diagram; Week 1 check-in.
+
+## Week 1 Session 6 (Sun Oct 11): Measuring the FAQ Agent, README
+
+**Plan change:** interview calls will take whole days, so the plan now counts numbered sessions instead of dated days. 51 sessions, target finish **Dec 6** (no scope cut; free days can hold two sessions). Check-ins after every 7th session. Next session: "Start Session 7".
+
+**Learn:** Measuring AI features: accuracy, latency, cost per answer ("Define success criteria and build evaluations", Claude docs). Check questions: 2.25 / 3.
+- Q1 Forecasting: budget on the holdout rate (rules answer 36-38%, ~$300/month at 10,000 questions/day), with the seen rate (77%, ~$110/month) as a best case that has to be earned by promoting frequent, stable questions to rules. The 77% is inflated because the rules were tuned on those questions.
+- Q2 Latency: the average is for internal tracking; the SLA goes on the percentile (p95), per path, with headroom (e.g. "95% of AI answers within 2.5 s"). Same idea as "95% of P1 incidents resolved within 4 hours": the average hides the users who waited.
+- Q3 Fixing the misfiring rule: measure first (baseline), then fix, move the misfired question into the regression set, and judge the fix on fresh holdout questions. Fixing before the eval loses the "before" picture.
+
+**Build:**
+- Wrote 6 more holdout questions myself (hd-09 to hd-14) → 14 unseen questions. Note: these are new questions, not the 5 Day 5 live questions, so the `when ... submit` misfire question is still not in the holdout.
+- `day06/eval.py`: runs `route()` on all 40 questions (26 seen + 14 holdout) in two modes, `router` and `all_llm`; confirms the number of calls and cost first. Writes `results.csv` (80 rows).
+- Hand-graded usefulness (Y / P / N) for all 28 holdout rows and 40 of 52 seen rows (faq-10 to faq-15 still ungraded).
+- `day06/summarize.py` → `summary.md`: per mode x set: rule share, rule precision, useful rate, avg and p95 latency per path, cost per answer, blended cost per question, projection per 10,000.
+- Root `README.md` for Project 1: problem, Mermaid diagram, headline table, full results, findings, "When should you use rules instead of an LLM?", next steps, how to run, known issues.
+
+**Numbers (holdout, 14 new questions):**
+
+| | Router | All-LLM |
+|---|---|---|
+| Answered by rules | 36% (5/14) | 0% |
+| Useful answers | 57% | 89% |
+| Cost per question | $0.00107 | $0.00168 |
+| Cost per useful answer | $0.00188 | $0.00188 |
+| p95 latency, LLM answers | 1,696 ms | 1,735 ms |
+
+- Rule answers on the holdout: right category 4/5, but useful only 10% (hd-02 P; hd-05, hd-08, hd-11, hd-13 N). For each of the 4 N's the LLM gave a useful answer.
+- Seen set: rules answered 77% (20/20 right category) but rule answers were 68% useful vs 100% for the LLM (graded rows).
+- Out-of-scope rules (payroll, password) were the only clear rule win: 2/2 useful, $0, 0 ms.
+- Total eval cost about $0.09.
+
+**What I learned:**
+- Cost per useful answer is the metric that matters. The router's 36% saving on cost per question disappears once only useful answers count: it saved money by giving unhelpful answers for free.
+- Rules fit narrow intents with one fixed answer, not broad topics.
+- hd-11 was a second keyword misfire: it matched only the phrase `change request`.
+- Grounding mostly held; two minor slips: faq-16 (claims all mandatory fields are on the Plan tab) and hd-12 ("the policy document above" refers to the hidden system prompt).
+- At temperature 0 every LLM question got identical text in both modes, so a response cache for repeated questions is a cheaper, higher-quality "rule" than keyword matching.
+- My grading rubric: an honest "the policy doesn't cover this" is useful only if it points the user somewhere (hd-01, hd-09 = Y; hd-03 = N).
+
+**What broke / fixed:**
+- First README draft attributed the `when ... submit` misfire to hd-11 and claimed "0 hallucinations"; corrected both against the data.
+- Cleanup: an empty `day04/hideout.json` (typo) and a duplicate Excel export, removed before committing.
+
+**Next:** Week 1 check-in. Then Session 7: RAG head start (synthetic runbooks). Carry-overs: grade faq-10 to faq-15; before/after test of the rule fixes on fresh holdout questions.
