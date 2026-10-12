@@ -20,12 +20,12 @@ Update this section as the weeks progress.
 
 ## Stack
 
-- Python (use the `.venv` at the parent folder: `..\.venv\Scripts\Activate.ps1`)
+- Python (use the `.venv` in `C:\AI Learning`: `..\.venv\Scripts\Activate.ps1` from this folder, `..\..\.venv\Scripts\Activate.ps1` from a project folder)
 - Anthropic API: Haiku while developing, to keep cost low
 - Streamlit for UIs, ChromaDB for vector search
 - Later: FastAPI, LangChain, LangGraph, CrewAI
 
-Run a script from this folder, e.g. `python day01\token_estimator.py`. Run the Streamlit FAQ app from this folder with `streamlit run day05\app.py` (venv active). Evaluate the FAQ Agent with `python day06\eval.py` (prints the LLM-call count and estimated cost, asks to confirm; `--yes` skips the prompt; ~55 Haiku calls, ~$0.09; writes `day06\results.csv` with `useful` blank for hand grading Y/P/N), then `python day06\summarize.py` (no API calls; reads the graded CSV, writes `day06\summary.md`). No build, lint or test commands exist yet. Add them here when the first project introduces them, including how to run a single test or eval.
+Project 1 lives in `change-request-faq-agent\` (its build steps are the `day01`-`day06` subfolders; scripts find each other and the root `.env` by paths relative to their own file, so they run from any folder). From `change-request-faq-agent\`: `python day01\token_estimator.py`; the Streamlit FAQ app: `streamlit run day05\app.py` (venv active); evaluate with `python day06\eval.py` (prints the LLM-call count and estimated cost, asks to confirm; `--yes` skips the prompt; ~55 Haiku calls, ~$0.09; writes `day06\results.csv` with `useful` blank for hand grading Y/P/N), then `python day06\summarize.py` (no API calls; reads the graded CSV, writes `day06\summary.md`). Project 2 lives in `runbook-assistant\`. New projects get their own top-level folder, not `dayNN` folders. No build, lint or test commands exist yet. Add them here when a project introduces them, including how to run a single test or eval.
 
 ## Conventions
 

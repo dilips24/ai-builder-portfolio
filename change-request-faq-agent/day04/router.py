@@ -69,7 +69,7 @@ def load_policy() -> str:
 
 @functools.cache
 def get_client() -> anthropic.Anthropic:
-    load_dotenv(HERE.parent / ".env")
+    load_dotenv(HERE.parent.parent / ".env")  # .env lives at the repo root
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
         sys.exit(

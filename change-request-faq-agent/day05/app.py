@@ -1,6 +1,6 @@
 """Streamlit UI for the Change Request FAQ Agent (rules first, Haiku fallback).
 
-Run from the ai-builder-portfolio folder:  streamlit run day05\\app.py
+Run from the change-request-faq-agent folder:  streamlit run day05\\app.py
 """
 
 import json
