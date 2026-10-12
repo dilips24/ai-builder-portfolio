@@ -272,3 +272,29 @@ Check questions: 4 / 6.
 Quiz: 5 / 5. Mock interview: "When should a team use rules instead of an LLM?" First attempt (Oct 11) answered a different question (a to-do list for this project). Second attempt (Oct 12): principle + governance in my own words, then added my numbers and when rules fail (36% answered / 10% useful vs 89%; narrow single-answer intents only).
 
 **Running scorecard:** Week 1: 11/12.
+
+## Week 2 Session 7 (Mon Oct 12): What RAG is, runbook library
+
+**Warm-up:** mock interview retried ("When should a team use rules instead of an LLM?"): own words plus my numbers → Week 1 Communicate 3, Week 1 total 11/12.
+
+**Learn:** RAG basics ("Introducing Contextual Retrieval", Anthropic: longer-prompt note and RAG primer). Check questions: 2.25 / 3.
+- Q1 Why not send all runbooks like the FAQ Agent: cost (~15,000 tokens ≈ $0.015/answer, ~10x) and latency, but mainly **accuracy** (the right step gets buried; overlapping and superseded runbooks get blended) and **scale**. When NOT to use RAG: small, stable knowledge bases (under ~200k tokens) can just be sent whole with prompt caching.
+- Q2 Keyword rules fail two ways: **false match** (word trap: "freeze" = change freeze vs screens freezing) and **no match** (`\bfreezes?\b` doesn't match "freezing"; "unresponsive under high load" shares no words). Embeddings turn text into numbers that capture meaning, so similar meanings land close together with no shared words needed.
+- Q3 A wrong RAG answer comes from **retrieval** (right chunk not in the top results) or **generation** (right chunks, wrong answer), plus a third case: **coverage gap** (no doc covers it; should say "I don't know"). Tell which by logging the retrieved chunks with every answer. (Slip: wrote "retrieval" where I meant "generation".)
+
+**Repo change:** moved Project 1 into `change-request-faq-agent/` (dayNN kept as subfolders via `git mv`; `.env` path fixed in classify.py and router.py; project README moved there; root README is now a portfolio index). New projects get their own top-level folder.
+
+**Build:**
+- `runbook-assistant/data/`: 18 synthetic docs for the fictional operator "Northwind Mobile" (12 runbooks, 6 postmortems, 340-410 words each) + `INDEX.md`, generated with Claude Code in plan mode.
+- Retrieval traps built in: different wording (RB-004 "unresponsive under high load"), overlapping pair (RB-004 CRM thread pool vs RB-006 API gateway breakers; PM-005 links both), superseded pair (RB-011 → RB-012, DNS), postmortem-only lessons, and no runbook for certificate expiry or replication lag (postmortems only).
+- `runbook-assistant/design_notes.md`: answer key (facts and traps per doc). Never index it; don't read it before writing test questions.
+- Domain review: edited RB-002 (billing batch); reviewed the other docs and found them realistic as written.
+- `runbook-assistant/test_questions.md`: 7 questions written in real ticket language before any search exists, each with an expected doc: portal login "unable to authenticate" (RB-003), prepaid refill not processed (RB-005), expired certificate breaking quick payment (None), port-out past SLA (RB-007), MDN activation stuck in order management (RB-008), DNS lookups failing / which TTL (RB-012, superseded-pair test), "multiple applications responding very slowly" (overlap test).
+
+**What I learned:**
+- The domain expert's job in AI work: design the test data and its traps, and review AI-generated content for realism.
+- Ticket-style questions are a better test than textbook questions. Q1 is a natural word trap: "authenticate" may pull RB-001 (HSS subscriber authentication), while the right answer is "no runbook covers portal login".
+
+**Carry-overs to Session 8:** fix the overlap question's expected doc (RB-014 doesn't exist; RB-004 or RB-006); decide whether the certificate question should expect PM-004 (a postmortem covers it) rather than None; convert the questions to a clean file (id, question, expected doc) for scoring.
+
+**Next:** Session 8: chunking, embeddings and ChromaDB; top-3 search for the test questions (index `data/` only).

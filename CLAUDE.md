@@ -8,7 +8,7 @@ Public GitHub portfolio for the 7-week AI Builder plan (Oct 2 – Dec 6, 2026 ta
 
 ## Current goal
 
-Week 1 (Sessions 1–9; Session 6 = Oct 11): **Change Request FAQ Agent**. Keyword rules answer known questions instantly; anything else goes to the LLM. Log path, latency, tokens and cost per question. Then start the Week 2 **Incident Runbook Assistant** (RAG over 15–20 synthetic runbooks, ChromaDB, cited answers).
+Week 2: **Incident Runbook Assistant** in `runbook-assistant\` (RAG over synthetic Northwind Mobile docs, ChromaDB, cited answers). The 18-document corpus (12 runbooks + 6 postmortems) is in `runbook-assistant\data\` with `INDEX.md`; `runbook-assistant\design_notes.md` lists the planted retrieval traps and is not part of the corpus. No search or embedding code yet: next is chunking, embeddings and ChromaDB retrieval. Week 1 (Change Request FAQ Agent) is complete.
 
 Update this section as the weeks progress.
 
