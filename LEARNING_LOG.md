@@ -266,9 +266,9 @@ Check questions: 4 / 6.
 | Build | 3 | FAQ Agent in Streamlit + rules-vs-LLM comparison, plus holdout, two-mode eval, shared `route()` with regression check |
 | Understand | 2 | Check questions dipped mid-week (1.75/3, 1/3) and recovered (2.5/3, 2.25/3); can say when not to use rules |
 | Measure | 3 | Before/after: prompt vs schema, router vs all-LLM, seen vs holdout; cost per useful answer |
-| Communicate | 2 | README + diagram + results; 2-minute interview answer still to be given in my own words |
-| **Total** | **10 / 12** | Move on to Week 2 |
+| Communicate | 3 | README + diagram + results; 2-minute interview answer given in my own words (Oct 12, second attempt, with numbers added) |
+| **Total** | **11 / 12** | Move on to Week 2 |
 
-Quiz: 5 / 5. Mock interview question pending: "When should a team use rules instead of an LLM?" (Communicate → 3 if answered in my own words).
+Quiz: 5 / 5. Mock interview: "When should a team use rules instead of an LLM?" First attempt (Oct 11) answered a different question (a to-do list for this project). Second attempt (Oct 12): principle + governance in my own words, then added my numbers and when rules fail (36% answered / 10% useful vs 89%; narrow single-answer intents only).
 
-**Running scorecard:** Week 1: 10/12.
+**Running scorecard:** Week 1: 11/12.
