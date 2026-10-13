@@ -337,4 +337,10 @@ Quiz: 5 / 5. Mock interview: "When should a team use rules instead of an LLM?" F
 - Superseded RB-011 still enters the top 3 (ranked 3rd) → metadata filter needed.
 - "Applications responding slowly" (tq-07) is genuinely ambiguous (RB-004 vs RB-006 vs DNS); a good assistant may need to ask a clarifying question.
 
-**Next:** Session 9: grounding and citations. Send the top chunks to Haiku and answer with `[source]` citations; add the superseded filter. Optional carry-over: rerun `search.py --all` (relabeled) and `--k 5`; test tq-05 with the typo fixed to confirm the diagnosis.
+**Follow-up experiments (same session):**
+- Rewrote tq-05 in plain words ("new phone number activation failing, orders stuck in provisioning"): **RB-008 ranked 1st at 0.944**, a stronger match than any original hit. Confirms the miss was vocabulary (typo + jargon), not missing content. (The rewrite fixed both at once, so typo vs jargon isn't separated.)
+- `--k 5`: **hit@5 = 5/6**, the same as hit@3. tq-05 still misses; RB-008 isn't even in the top 5. Looking deeper doesn't fix a vocabulary miss; fixing the question (LLM query rewriting) or the content (glossary: MDN, orders) does.
+- RB-008's tiny "Related docs" chunk (just a list of doc IDs) ranked 2nd for the rewritten question: the low-content-chunk problem. Candidate Week 3 experiment: drop or merge "Related docs" sections.
+- `search_results.csv` now holds the relabeled `--k 5` run.
+
+**Next:** Session 9: grounding and citations. Send the top chunks to Haiku and answer with `[source]` citations; add the superseded filter.
