@@ -1,0 +1,37 @@
+[
+  {
+    "id": "tq-01",
+    "question": "Multiple customer care tickets are opened for the issue where customer are not able to login to Digital selfserve portal. They are getting a message \"unable to authenticate\" even users are providing correct credentials",
+    "expected_docs": []
+  },
+  {
+    "id": "tq-02",
+    "question": "Multile prepaid subscribers are reportedly not able to make calls or use data service eventhough their refill payment were scheduled to be processed yesterday",
+    "expected_docs": ["RB-005", "RB-002"]
+  },
+  {
+    "id": "tq-03",
+    "question": "Certificate were expired and customer were unable to do the quick payment from Digital portal. more than 100 customers already reported this issue since today's morning",
+    "expected_docs": ["PM-004"]
+  },
+  {
+    "id": "tq-04",
+    "question": "Subscriber who initiated the portout requests are not able to make calls and thier portout requests is  not completed within the SLA.",
+    "expected_docs": ["RB-007"]
+  },
+  {
+    "id": "tq-05",
+    "question": "subscriber's MDN activitaion is failed due to stuck orders in order management system.",
+    "expected_docs": ["RB-008"]
+  },
+  {
+    "id": "tq-06",
+    "question": "customers can’t reach our websites, lookups failing, what TTL should we set?",
+    "expected_docs": ["RB-012"]
+  },
+  {
+    "id": "tq-07",
+    "question": "Mutiple applications are reporteldy responsing very slow.",
+    "expected_docs": ["RB-004"]
+  }
+]

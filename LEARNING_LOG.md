@@ -298,3 +298,43 @@ Quiz: 5 / 5. Mock interview: "When should a team use rules instead of an LLM?" F
 **Carry-overs to Session 8:** fix the overlap question's expected doc (RB-014 doesn't exist; RB-004 or RB-006); decide whether the certificate question should expect PM-004 (a postmortem covers it) rather than None; convert the questions to a clean file (id, question, expected doc) for scoring.
 
 **Next:** Session 8: chunking, embeddings and ChromaDB; top-3 search for the test questions (index `data/` only).
+
+## Week 2 Session 8 (Tue Oct 13): Chunking, embeddings and ChromaDB
+
+**Learn:** Chroma "Getting Started" (create collection, add, query). Check questions: 1.75 / 3.
+- Q1 Chunk by section: one section = one idea, so a clear embedding; fixed 200-word slices straddle sections and blur. Missed the second half: the `[doc_id | title | section]` label keeps near-identical sections apart (every runbook has an "Escalation" section) and tells the LLM what to cite.
+- Q2 Superseded doc beating the current one: (1) metadata filter `superseded = false` at search time, (2) prompt rule "prefer newest, never use SUPERSEDED", and best of all (3) retire superseded docs from the index (document lifecycle, like retiring a CI). I had the right directions but not the mechanisms.
+- Q3 Vector search always returns its top k, because "closest" ≠ "relevant". Checking for valid doc IDs can't detect this (every result has one); the fix is a distance cut-off calibrated on hit vs no-answer questions, plus an LLM "don't answer if the chunks don't cover it" rule.
+- Habit to build: after each answer, ask "how exactly would this work in the code?"
+
+**Environment issue:** `ingest.py` failed with "DLL load failed while importing rpds: An Application Control policy has blocked this file". Windows Smart App Control blocked a brand-new compiled dependency (`rpds-py` 2026.9.1); the other compiled parts (onnxruntime, tokenizers, Chroma's Rust bindings) loaded fine. Fix: `pip install --force-reinstall --no-deps "rpds-py==0.27.1"` (an older, widely downloaded build), pinned in requirements.txt. Lesson: security policies can block AI tooling on locked-down laptops; diagnose which file before changing anything.
+
+**Build:**
+- `pip install chromadb` (1.5.9); default embedding model all-MiniLM-L6-v2 (79 MB, local, free).
+- `runbook-assistant/test_questions.json`: 7 questions with `expected_docs` (tq-01 and tq-03 decisions: tq-01 portal login = none; tq-03 expired certificate = PM-004).
+- `runbook-assistant/ingest.py`: reads only `data/*.md` (never design_notes or test questions), front matter → metadata incl. `superseded`, one chunk per `##` section prefixed with `[doc_id | title | section]`, persistent collection `runbooks` in `chroma_db/` (git-ignored). Result: 18 docs → 116 chunks, avg 66 words (min 20, max 126).
+- `runbook-assistant/search.py`: top-k with doc_id, section, distance, superseded flag; `--all` scores the test set (hit@k) and writes `search_results.csv`; `--k N`. No filtering, no LLM. **Cost: $0.**
+
+**Numbers (raw search, k = 3):**
+
+| id | expected | result |
+|---|---|---|
+| tq-01 | none | top distance 1.253 (RB-005, PM-003, RB-001) |
+| tq-02 | RB-005 (+ RB-002 after review) | RB-002, RB-003, RB-009 |
+| tq-03 | PM-004 | HIT (0.921) |
+| tq-04 | RB-007 | HIT (1.165) |
+| tq-05 | RB-008 | MISS: PM-003, RB-005, PM-003 |
+| tq-06 | RB-012 | HIT: RB-012, RB-012, RB-011 (superseded 3rd) |
+| tq-07 | RB-004 | HIT: RB-004, RB-012, RB-004 (RB-006 not in top 3) |
+
+- **hit@3 = 4/6 (67%)** with the original labels; **5/6 (83%)** after relabeling tq-02 (same search results; `search_results.csv` is the pre-relabel run).
+- tq-02 relabel decision (mine, as domain reviewer): a scheduled prepaid refill that didn't process could be the payment gateway (RB-005) or the billing batch (RB-002); both runbooks would help an on-call engineer, so both count. Logged both scores so the change is transparent.
+
+**What I learned:**
+- tq-05 missed because of vocabulary, not meaning: a typo ("activitaion") and US telecom jargon ("MDN") that RB-008 never uses ("activation queue", "provisioning"). Embeddings handle synonyms but not typos or company jargon; "stuck orders" pulled the payment docs instead. Possible fixes: LLM query rewriting (fix typos, expand jargon), a glossary/synonyms in the runbooks, a stronger embedding model.
+- No clean "I don't know" cut-off yet: no-answer 1.253 vs misses 1.131-1.163 vs a hit at 1.165. Distance alone can't separate them, and 1 no-answer question is too few to calibrate.
+- Top 3 can be all one doc (tq-03, tq-04): fine for answering (symptoms + fix), wasteful for finding the right doc. Fix: best chunk per doc, or k=5 then collapse.
+- Superseded RB-011 still enters the top 3 (ranked 3rd) → metadata filter needed.
+- "Applications responding slowly" (tq-07) is genuinely ambiguous (RB-004 vs RB-006 vs DNS); a good assistant may need to ask a clarifying question.
+
+**Next:** Session 9: grounding and citations. Send the top chunks to Haiku and answer with `[source]` citations; add the superseded filter. Optional carry-over: rerun `search.py --all` (relabeled) and `--k 5`; test tq-05 with the typo fixed to confirm the diagnosis.

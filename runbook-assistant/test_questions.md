@@ -4,4 +4,4 @@ Certificate were expired and customer were unable to do the quick payment from D
 Subscriber who initiated the portout requests are not able to make calls and thier portout requests is  not completed within the SLA.,RB-007
 subscriber's MDN activitaion is failed due to stuck orders in order management system.,RB-008
 customers can’t reach our websites, lookups failing, what TTL should we set?. Expected: RB-012
-Mutiple applications are reporteldy responsing very slow.RB-014
+Mutiple applications are reporteldy responsing very slow.RB-004
