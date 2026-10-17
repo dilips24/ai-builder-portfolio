@@ -344,3 +344,46 @@ Quiz: 5 / 5. Mock interview: "When should a team use rules instead of an LLM?" F
 - `search_results.csv` now holds the relabeled `--k 5` run.
 
 **Next:** Session 9: grounding and citations. Send the top chunks to Haiku and answer with `[source]` citations; add the superseded filter.
+
+## Week 2 Session 9 (Thu Oct 15 – Fri Oct 16): Grounding and citations
+
+**Learn:** "Reduce hallucinations" (Claude docs): permission to say "I don't know", restrict to provided documents, cite sources per claim. Check questions: 2.25 / 3.
+- Q1 Citations make each fact traceable to a source; a code check catches invented citation IDs. Nuance: a *valid* citation isn't necessarily *faithful* (a real chunk can be cited for a claim it doesn't support) → hand check now, LLM-as-judge in Session 13.
+- Q2 Input tokens: I counted only the chunks (~300). Full prompt = chunks + system prompt + question + structured-output schema ≈ 700-900 (measured: ~1,000). RAG's real cost advantage: the prompt stays constant as the library grows. Risk of little context: the answer is only as good as the top chunks, and can be incomplete.
+- Q3 Superseded RB-011 risk: citation and faithfulness checks would NOT catch it (a faithful answer from an outdated runbook is still wrong). Real safeguards: retrieval filter on `superseded`, visible sources, a prompt rule; above all, retire superseded docs (knowledge-base hygiene). Lesson: make sure the safeguard acts on the failure I describe.
+
+**Build:**
+- `search.py`: superseded chunks excluded by default (`where={"superseded": False}`), `--include-superseded` to turn it off. RB-011 no longer appears for the DNS question.
+- `answer.py`: retrieve top 3 (imports `retrieve()` from search.py) → chunks wrapped as `<chunk id=… last_updated=…>` → Haiku 4.5, temperature 0, structured outputs `{answerable, answer, citations}`. System prompt: only the chunks, never general knowledge; a citation after every fact; strict "The runbooks don't answer this question" + optional "Possibly related" (retrieved docs only, no advice); never use SUPERSEDED docs, prefer the newest `last_updated`. Code checks every citation (list and inline tags) against the retrieved chunk IDs. Prints sources, tokens, latency, cost.
+- Fixes along the way: `.env` path (repo root `ai-builder-portfolio\`); prompt leak — a "don't know" answer still added general-knowledge advice ("check payment processing logs"), so the strict abstain format was added.
+- `answer.py --all` → `answers.csv`, hand-graded.
+
+**Single-question experiments:**
+- "new phone number activation failing, orders stuck in provisioning" → cited, faithful (3/3 facts word-for-word from RB-008 Symptoms) but **incomplete**: only symptoms, because Diagnosis/Resolution chunks weren't in the top 3 (slots went to Symptoms, the tiny "Related docs" chunk and PM-006). 987 in / 145 out tokens, $0.0017.
+- "subscriber MDN activation failed, stuck orders" (no typo) → honest "don't know". Retrieval returned PM-003 ×2 + RB-001 (distance 1.20+), driven by "subscriber"/"failed"/"stuck". **Jargon alone ("MDN") breaks retrieval** (settles the Session 8 typo-vs-jargon question). Safe failure, but the fix belongs before the LLM (query rewriting, glossary in RB-008), not in the prompt.
+
+**Grading rubric:** correct = what the engineer actually got: Y = answered, or correctly said no runbook exists; P = pointed to the right place / partial although the library had more; N = not helped although the answer is in the library. faithful = every statement supported by its citation (abstains = Y).
+
+**Numbers (7 test questions):**
+
+| id | retrieved | answered | correct | faithful |
+|---|---|---|---|---|
+| tq-01 portal login | RB-005, PM-003, RB-001 | no | Y (correct abstain) | Y |
+| tq-02 prepaid refill | RB-002, RB-003, RB-009 | no (+ possibly related RB-002, RB-009) | P | Y |
+| tq-03 expired cert | PM-004 ×3 | no (+ possibly related PM-004) | P | Y |
+| tq-04 port-out | RB-007 ×3 | yes, 8 cited steps | Y | Y |
+| tq-05 MDN activation | PM-003, RB-005 (miss) | no | N | Y |
+| tq-06 DNS TTL | RB-012 ×3 (no RB-011) | yes: TTL 60 s, restore 900 s | Y | Y |
+| tq-07 apps slow | RB-004, RB-012 | no (+ possibly related RB-004, RB-012) | P | Y |
+
+- **Useful rate 64%** (4.5/7); **faithful 7/7**; **0 invalid citations**; answered 2/7.
+- Cost: **$0.011 total**, ~$0.0016/question (≈ FAQ Agent), avg ~1,050 input tokens (vs ~1,280 for the FAQ Agent). The best answer was the most expensive: tq-04 $0.0031 (396 output tokens); abstains $0.0011-0.0013. Output tokens cost 5x input, so answer length is a real cost lever.
+- Distances for the Session 10 cut-off: hits 0.92-1.17, MDN retrieval miss 1.202, no-answer tq-01 1.253, Session 8 misses (tq-02, tq-05) 1.13-1.16. A cut-off around 1.19 would catch the first two without blocking a hit, but not the misses that look like hits.
+
+**What I learned:**
+- **Trustworthy but over-cautious.** The strict "don't know" prompt fixed the leak but over-corrected: 3 abstains (tq-02, tq-03, tq-07) had at least partly relevant chunks. Same dial as Week 1 rules, from the other side. Better behaviour: a partial, grounded answer ("no runbook covers this, but PM-004 describes a similar incident; its fix was … [PM-004#3]"). Calibrating this is Session 10.
+- **Retrieval hit ≠ answerable.** tq-02 and tq-03 counted as retrieval hits but didn't produce answers; tq-04's success and the activation example's incompleteness both depend on *which sections* were retrieved, not just which doc. Fix ideas: fetch the parent document's Diagnosis/Resolution once a runbook wins; drop tiny "Related docs" chunks; k=4-5.
+- **Generation can't fix a retrieval miss**, but it can fail honestly: no invented steps on tq-01, tq-05 or the MDN question.
+- My test questions are ticket descriptions without an explicit question; a strict model may decide there's nothing to answer. The prompt could treat a ticket as "how do I diagnose and resolve this?".
+
+**Next:** Session 10: abstaining well. A distance cut-off plus the LLM's `answerable`, and partial grounded answers instead of a bare "don't know".

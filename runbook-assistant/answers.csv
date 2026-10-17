@@ -1,0 +1,28 @@
+﻿id,question,expected_docs,retrieved_chunk_ids,answerable,answer,citations,invalid_citations,input_tokens,output_tokens,latency_ms,cost_usd,correct,faithful
+tq-01,"Multiple customer care tickets are opened for the issue where customer are not able to login to Digital selfserve portal. They are getting a message ""unable to authenticate"" even users are providing correct credentials",,RB-005#0;PM-003#2;RB-001#2,no,The runbooks don't answer this question.,,,1149,27,1916,0.001284,Y,Y
+tq-02,Multile prepaid subscribers are reportedly not able to make calls or use data service eventhough their refill payment were scheduled to be processed yesterday,RB-005;RB-002,RB-002#1;RB-003#1;RB-009#1,no,"The runbooks don't answer this question.
+Possibly related:
+- RB-002: Nightly Billing Rating Batch Delayed or Stalled
+- RB-009: Roaming Partner Signalling Failures and Late TAP Files",,,942,77,1691,0.001327,P,Y
+tq-03,Certificate were expired and customer were unable to do the quick payment from Digital portal. more than 100 customers already reported this issue since today's morning,PM-004,PM-004#0;PM-004#2;PM-004#3,no,"The runbooks don't answer this question.
+Possibly related:
+- PM-004: Postmortem - Expired Intermediate Certificate Broke API and SMS Traffic",,,967,56,1553,0.001247,P,Y
+tq-04,Subscriber who initiated the portout requests are not able to make calls and thier portout requests is  not completed within the SLA.,RB-007,RB-007#2;RB-007#3;RB-007#5,yes,"To diagnose stuck portout requests:
+
+1. Look up the request: `portctl request show --id <REQUEST_ID>`. Record the status, donor operator, and time of last message [RB-007#2].
+2. Check clearing house connectivity: `portctl link status`. A link in `DEGRADED` explains many simultaneous stuck requests [RB-007#2].
+3. For `P14` rejections, compare customer name, ID number, and account number against the CRM record—most are typos or mismatched ID format [RB-007#2].
+4. For cut-over failures, check the routing record: `portctl route show --msisdn <MSISDN>`. If routing still points at the donor, the cut-over message was not applied [RB-007#2].
+
+To resolve:
+
+1. Resend a stuck request once: `portctl request resend --id <REQUEST_ID>`. Do not resend more than once [RB-007#3].
+2. For `P14`, correct the data in CRM and resubmit with `portctl request amend --id <REQUEST_ID>` [RB-007#3].
+3. For failed cut-over, apply routing manually: `portctl route apply --msisdn <MSISDN> --to northwind` and ask Core Signalling team to confirm HLR update [RB-007#3].
+4. Record every manual correction in the porting case log for regulator audit [RB-007#3].",RB-007#2;RB-007#3,,1129,396,3882,0.003109,Y,Y
+tq-05,subscriber's MDN activitaion is failed due to stuck orders in order management system.,RB-008,PM-003#4;RB-005#4;PM-003#0,no,The runbooks don't answer this question.,,,971,27,1177,0.001106,N,Y
+tq-06,"customers can’t reach our websites, lookups failing, what TTL should we set?",RB-012,RB-012#1;RB-012#4;RB-012#3,yes,"During a DNS resolution incident, lower the TTL on affected records to **60 seconds** with `dnsctl ttl set --zone nwm.internal --ttl 60` [RB-012#4]. Restore the normal 900 seconds after the incident is resolved [RB-012#4].",RB-012#4,,1219,95,1869,0.001694,Y,Y
+tq-07,Mutiple applications are reporteldy responsing very slow.,RB-004,RB-004#0;RB-012#1;RB-004#5,no,"The runbooks don't answer this question.
+Possibly related:
+- RB-004: CRM and Customer-Care Application Unresponsive Under High Load
+- RB-012: DNS Resolution Failures (Version 2, Current)",,,1004,74,1719,0.001374,P,Y

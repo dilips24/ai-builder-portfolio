@@ -1,9 +1,12 @@
-"""Raw semantic search over the runbook ChromaDB collection (no filtering, no LLM calls).
+"""Semantic search over the runbook ChromaDB collection (no LLM calls).
+
+Superseded chunks are excluded by default.
 
   python search.py "question"        top-k chunks for one question
   python search.py --all             run every question in test_questions.json,
                                      print a table and save search_results.csv
   --k N                              number of chunks to return (default 3)
+  --include-superseded               also return superseded chunks (filter off)
 
 Run `python ingest.py` first to build the collection.
 """
@@ -32,9 +35,13 @@ def open_collection():
         sys.exit(f"Collection '{COLLECTION}' not found in {CHROMA_DIR}. Run `python ingest.py` first.")
 
 
-def retrieve(collection, question, k):
-    """Return the top-k chunks for a question as a list of dicts, nearest first."""
-    res = collection.query(query_texts=[question], n_results=k)
+def retrieve(collection, question, k, include_superseded=False):
+    """Return the top-k chunks for a question as a list of dicts, nearest first.
+
+    Superseded chunks are filtered out unless include_superseded is True.
+    """
+    where = None if include_superseded else {"superseded": False}
+    res = collection.query(query_texts=[question], n_results=k, where=where)
     return [
         {
             "chunk_id": cid,
@@ -57,9 +64,9 @@ def preview(text, width=150):
     return re.sub(r"\s+", " ", body).strip()[:width]
 
 
-def print_single(collection, question, k):
+def print_single(collection, question, k, include_superseded=False):
     print(f"Question: {question}\n")
-    for rank, hit in enumerate(retrieve(collection, question, k), start=1):
+    for rank, hit in enumerate(retrieve(collection, question, k, include_superseded), start=1):
         print(
             f"{rank}. {hit['doc_id']} | {hit['section']} | distance {hit['distance']:.3f} | "
             f"superseded={'yes' if hit['superseded'] else 'no'}"
@@ -67,12 +74,12 @@ def print_single(collection, question, k):
         print(f"   {preview(hit['text'])}\n")
 
 
-def run_all(collection, k):
+def run_all(collection, k, include_superseded=False):
     questions = json.loads(QUESTIONS_FILE.read_text(encoding="utf-8"))
     rows = []
     hits = expecting = 0
     for q in questions:
-        results = retrieve(collection, q["question"], k)
+        results = retrieve(collection, q["question"], k, include_superseded)
         top_docs = [r["doc_id"] for r in results]
         distances = [r["distance"] for r in results]
         best = min(distances)
@@ -108,6 +115,8 @@ def main():
     parser.add_argument("question", nargs="?", help="question to search for")
     parser.add_argument("--all", action="store_true", help="run every question in test_questions.json")
     parser.add_argument("--k", type=int, default=3, help="number of chunks to return (default 3)")
+    parser.add_argument("--include-superseded", action="store_true",
+                        help="also return superseded chunks (filter off)")
     args = parser.parse_args()
     if not args.question and not args.all:
         parser.error("give a question or --all")
@@ -116,9 +125,9 @@ def main():
 
     collection = open_collection()
     if args.all:
-        run_all(collection, args.k)
+        run_all(collection, args.k, args.include_superseded)
     else:
-        print_single(collection, args.question, args.k)
+        print_single(collection, args.question, args.k, args.include_superseded)
 
 
 if __name__ == "__main__":
