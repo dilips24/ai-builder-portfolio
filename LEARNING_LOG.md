@@ -387,3 +387,40 @@ Quiz: 5 / 5. Mock interview: "When should a team use rules instead of an LLM?" F
 - My test questions are ticket descriptions without an explicit question; a strict model may decide there's nothing to answer. The prompt could treat a ticket as "how do I diagnose and resolve this?".
 
 **Next:** Session 10: abstaining well. A distance cut-off plus the LLM's `answerable`, and partial grounded answers instead of a bare "don't know".
+
+## Week 2 Session 10 (Sat Oct 17 – Mon Oct 19): Abstaining well
+
+**Learn:** Precision/recall and the threshold trade-off (Google ML Crash Course). Check questions: 2.25 / 3.
+- Q1 Two ways "I don't know" goes wrong: **false abstain** (answer exists but isn't retrieved, *or* is retrieved and the model still declines, e.g. tq-03) and **false answer** (answering from the wrong chunks). The false answer is worse in an outage. My own catch: a "possibly related" pointer to the wrong runbook is a milder form of misdirection (real example: tq-02 pointed to RB-009 roaming).
+- Q2 Tune vs holdout: I had the mechanics but not the why. Any threshold looks perfect on the questions it was picked from; only unseen questions show how it generalises (same lesson as the Week 1 rules: 77% → 36%). The cut-off comes from retrieval distances, before any LLM call.
+- Q3 Distance gate: benefit = $0, instant, can't hallucinate; risk = paraphrased questions land above the cut-off and get blocked even though the runbook exists. Cleanest answer so far.
+
+**Build:**
+- 8 new test questions written blind (tq-08 to tq-15) plus a `set` field: tune = tq-01 to tq-11 (9 answerable, 2 no-answer), holdout = tq-12 to tq-15. Before running anything, fixed labels after review: tq-09 → RB-010 (voicemail retrieval *is* covered), tq-10 → RB-008, tq-14 → RB-001, tq-12 → PM-001 and the real company name removed (synthetic data only).
+- `calibrate.py` ($0, tune only): best distance per question, classified HIT / MISS / NO-ANSWER; cut-off sweep 1.10-1.30.
+  - Highest HIT 1.165 (tq-04); NO-ANSWER at 1.119 (tq-08) and 1.253 (tq-01); MISSes at 1.157 and 1.207.
+  - tq-08 (retail cash payments) sits among the hits, so **no cut-off can gate it** without blocking real answers; it's left to the LLM layer.
+  - **Decision: cut-off 1.20.** Keeps a 0.035 margin above the highest hit, gates tq-01 (no answer) and tq-10 (a miss the LLM couldn't answer anyway).
+- `answer.py` v2: distance gate (`--max-distance 1.20` → "No runbook matched this closely enough", path=gate, $0); `coverage` = full / partial / none instead of answerable; "Possibly related" only for docs within the cut-off; ticket descriptions treated as "how do I diagnose and resolve this?"; `--set tune|holdout|all`; writes `answers_v2.csv` (v1 kept).
+
+**Numbers (same rubric as Session 9):**
+
+| | v1 (Session 9) | v2 tune (11) | v2 holdout (4) |
+|---|---|---|---|
+| Useful rate | 64% on original 7 | 59% (6.5/11); **original 7 still 64%** | 50% (2/4) |
+| Faithful | 7/7 | 11/11 | 4/4 |
+| Gated ($0) | – | 2 (tq-01, tq-10) | 2 (tq-12, tq-13) |
+| Bare "don't know" with relevant chunks | 3 | 0 | 0 |
+| Cost | $0.011 | $0.019 | $0.005 |
+
+Holdout detail: tq-13 (aircraft/weather) gated correctly (1.484) ✓. **tq-12 (data-centre power outage) gated at 1.276 although PM-001 was retrieved 1st and 2nd** ✗: the false abstain I predicted in Q3. tq-14 passed with only a 0.025 margin (1.175) and mixed in an irrelevant RB-004 CRM escalation. tq-15 gave RB-009 diagnosis steps but no resolution (that section wasn't retrieved).
+
+**What I learned:**
+- **Layers work as designed:** the gate catches clear no-answers for $0 (tq-01, tq-13); the LLM catches what distance can't separate (tq-08, cash payments). Still 100% faithful, 0 invalid citations.
+- **The cut-off looked safe on tune and less safe on holdout:** all tune hits ≤ 1.165, but relevant holdout questions arrived at 1.175 and 1.276. Exactly why the holdout exists. I won't move the cut-off to pass tq-12 (that would be tuning on the holdout); re-calibrate on Session 11's larger set. Idea: a softer gate that still shows close "possibly related" docs without calling the LLM.
+- **Over-correction the other way:** the model now labels complete answers (tq-04, tq-06) "partial" and adds caveats; partial mode also tries to use every chunk (tq-14's irrelevant CRM escalation). The coverage label needs a sharper definition (full = the steps needed to act are present).
+- **A coarse metric hides real progress:** tq-02, tq-03 and tq-07 went from bare pointers to real cited information, but all stayed "P", so the useful rate didn't move. Consider a finer scale (Y / P+ / P / N) or an "actionable?" column.
+- Writing questions blind then reviewing labels *before* running caught 4 wrong expected docs; a wrong label would have pushed the cut-off the wrong way.
+- Small samples: 2 no-answer tune questions and 4 holdout questions are too few to trust one number.
+
+**Next:** Session 11: golden test set (about 30 questions incl. a proper holdout), re-calibrate the gate, sharpen the coverage definition.
