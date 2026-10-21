@@ -424,3 +424,40 @@ Holdout detail: tq-13 (aircraft/weather) gated correctly (1.484) ✓. **tq-12 (d
 - Small samples: 2 no-answer tune questions and 4 holdout questions are too few to trust one number.
 
 **Next:** Session 11: golden test set (about 30 questions incl. a proper holdout), re-calibrate the gate, sharpen the coverage definition.
+
+## Week 2 Session 11 (Tue Oct 20): The golden test set
+
+**Learn:** "Your AI Product Needs Evals" (Hamel Husain): scoped tests, test cases, looking at traces. Check questions: 2.25 / 3.
+- Q1 Write questions before reading the runbooks: copying runbook wording **leaks** the answer into the test, inflates retrieval scores and hides real gaps, which would lead to a launch decision based on numbers real users won't see. (Wording mismatch mainly tests retrieval, not the LLM's reasoning.)
+- Q2 Mix: mirror real traffic, including questions the library can't answer. No-answer questions are the only way to catch false answers and to calibrate the gate. Rough mix: ~55-60% answerable across many runbooks, ~20-25% no-answer, ~15-20% hard cases (superseded, ambiguous, jargon/typos).
+- Q3 Freeze: score changes must reflect the system, not the test (comparability). Correction: never change a label to make the evaluation look better. Change a label only when it's wrong on the merits (or the source changed); log it, bump the version, and re-score every compared version on the new set.
+
+**Build:**
+- 18 new questions written blind (tq-16 to tq-33), in real ops language: billing SLA miss, SMS promotion backlog, device activation, DB team focal + stale reports, captcha on bill payment, certificate renewal breaking third-party apps, change applied to prod instead of test, trade-in portal down, billing jobs running twice, data-warehouse certificate, CRM won't launch, suspicious login failures, slow reports on the replica, CNAME change on the WAF, Dynatrace errors on plan change, plus an off-topic one (shopping mall), card payments at checkout, and a direct escalation question.
+- Labelling with Claude Code, reviewed by me: every question now has `type` (answerable / no_answer / superseded_trap / ambiguous), `style` (ticket / question), `expected_docs`, `must_include` (1-3 key facts, e.g. "TTL 60 s", "resend only once", "notify Finance at 04:30") and `set`.
+- Label decisions before freezing: tq-21 → PM-004 (consistent with tq-25: PM-004 covers an expired intermediate cert breaking partner APIs over mutual TLS); tq-32 → RB-005 + PM-003 (closes the PM-003 coverage gap); tq-24 (billing running twice) stays no-answer (RB-002 only covers restarts).
+- Holdout hygiene: tq-12 to tq-15 were run and inspected in Session 10, so they moved to **tune**. The new holdout uses only never-run questions: tq-16, 17, 18, 20, 24, 26, 27, 29, 32, 33.
+- `validate_testset.py` ($0): unique ids, expected docs exist, required fields, no-answer consistency, mix summary, coverage. Result: **33 questions, 0 errors; 17 of 18 docs expected** (only RB-011, the superseded runbook, never expected, as intended).
+
+**Golden set v1:**
+
+| | Answerable | No answer | Ambiguous | Superseded trap | Total |
+|---|---|---|---|---|---|
+| Tune | 11 | 6 | 5 | 1 | 23 |
+| Holdout | 4 | 4 | 2 | 0 | 10 |
+
+Style: 29 tickets, 4 direct questions (realistic for on-call use; a known skew). Only one superseded-trap question (tune).
+
+**Re-calibration on 23 tune questions ($0):**
+- 14 HIT, 3 MISS, 6 NO-ANSWER. Hits run 0.776-1.175, plus tq-12 at 1.276; no-answers at 1.119, 1.236, 1.253, 1.319, 1.354, 1.484.
+- 1.20 blocks 5/6 no-answers but wrongly blocks tq-12; 1.23 gives the same result with more margin (0.055 above tq-14); 1.30 blocks no hits but only 3/6 no-answers.
+- **Decision: cut-off 1.23** (`answer.py` default updated). Blocks 5 of 6 no-answer questions with a 0.055 margin above the regular hits. Accepts that tq-12 is blocked; its PM-001 label is debatable (PM-001 covers the aftermath of a power event, not the outage itself).
+- The decision hinges on one debatable question; the fresh holdout will test it.
+
+**What I learned:**
+- A test set is a regression pack: representative, deliberately hard, labelled with expected facts, frozen and versioned.
+- Reviewing labels before running caught more inconsistencies (tq-21 vs tq-25) and a coverage gap (PM-003).
+- Once a question's results have been seen, it can't stay in the holdout.
+- The gate's cut-off is really a product decision about which mistake has a backup: a no-answer that passes the gate still meets the LLM; a real answer blocked by the gate has none.
+
+**Next:** Session 12: retrieval eval on golden-v1 (hit@k per type, tune then holdout).

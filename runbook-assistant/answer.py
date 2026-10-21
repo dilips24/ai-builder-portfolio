@@ -8,7 +8,7 @@
   --set S      with --all: tune, holdout or all (default all)
   --yes        skip the confirmation prompt for --all
   --k N        number of chunks to retrieve (default 3)
-  --max-distance D   distance gate (default 1.20): if the best retrieved chunk is
+  --max-distance D   distance gate (default 1.23): if the best retrieved chunk is
                      farther than D, skip the LLM and answer coverage "none"
 
 Answers only from the retrieved chunks, cites chunk ids, and checks every
@@ -38,7 +38,7 @@ ENV_FILE = HERE.parent / ".env"  # .env lives at the repo root, same as the FAQ 
 MODEL = "claude-haiku-4-5"
 MAX_TOKENS = 800
 EST_OUTPUT_TOKENS = 250  # per-call guess, only used for the pre-run cost estimate
-MAX_DISTANCE = 1.20
+MAX_DISTANCE = 1.23
 GATE_ANSWER = "No runbook matched this closely enough."
 ANSWERS_CSV = HERE / "answers_v2.csv"  # answers.csv is the v1 run (answerable column), kept as is
 CSV_COLUMNS = [

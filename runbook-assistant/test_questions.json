@@ -3,90 +3,415 @@
     "id": "tq-01",
     "question": "Multiple customer care tickets are opened for the issue where customer are not able to login to Digital selfserve portal. They are getting a message \"unable to authenticate\" even users are providing correct credentials",
     "expected_docs": [],
+    "type": "no_answer",
+    "style": "ticket",
+    "must_include": [],
     "set": "tune"
   },
   {
     "id": "tq-02",
     "question": "Multile prepaid subscribers are reportedly not able to make calls or use data service eventhough their refill payment were scheduled to be processed yesterday",
-    "expected_docs": ["RB-005", "RB-002"],
+    "expected_docs": [
+      "RB-005",
+      "RB-002"
+    ],
+    "type": "answerable",
+    "style": "ticket",
+    "must_include": [
+      "auth success below 96% over 5 min",
+      "route to secondary acquirer"
+    ],
     "set": "tune"
   },
   {
     "id": "tq-03",
     "question": "Certificate were expired and customer were unable to do the quick payment from Digital portal. more than 100 customers already reported this issue since today's morning",
-    "expected_docs": ["PM-004"],
+    "expected_docs": [
+      "PM-004"
+    ],
+    "type": "answerable",
+    "style": "ticket",
+    "must_include": [
+      "intermediate cert in the chain expired",
+      "gwctl cert chain --check"
+    ],
     "set": "tune"
   },
   {
     "id": "tq-04",
     "question": "Subscriber who initiated the portout requests are not able to make calls and thier portout requests is  not completed within the SLA.",
-    "expected_docs": ["RB-007"],
-"set": "tune"  },
+    "expected_docs": [
+      "RB-007"
+    ],
+    "type": "answerable",
+    "style": "ticket",
+    "must_include": [
+      "PENDING_DONOR over 4 business hours",
+      "resend only once"
+    ],
+    "set": "tune"
+  },
   {
     "id": "tq-05",
     "question": "subscriber's MDN activitaion is failed due to stuck orders in order management system.",
-    "expected_docs": ["RB-008"],
+    "expected_docs": [
+      "RB-008"
+    ],
+    "type": "answerable",
+    "style": "ticket",
+    "must_include": [
+      "oldest message over 8 min",
+      "quarantine poison message"
+    ],
     "set": "tune"
   },
   {
     "id": "tq-06",
     "question": "customers can’t reach our websites, lookups failing, what TTL should we set?",
-    "expected_docs": ["RB-012"],
+    "expected_docs": [
+      "RB-012"
+    ],
+    "type": "superseded_trap",
+    "style": "question",
+    "must_include": [
+      "TTL 60 s during incident",
+      "restore 900 s afterwards"
+    ],
     "set": "tune"
   },
   {
     "id": "tq-07",
     "question": "Mutiple applications are reporteldy responsing very slow.",
-    "expected_docs": ["RB-004"],
+    "expected_docs": [
+      "RB-004"
+    ],
+    "type": "ambiguous",
+    "style": "ticket",
+    "must_include": [
+      "agent-ui threads above 190 of 200",
+      "recycle pool one node at a time"
+    ],
     "set": "tune"
   },
   {
     "id": "tq-08",
     "question": "Retail Agents are reporting that they are not able to accept cash payment from customers for the last 2 hours.",
     "expected_docs": [],
+    "type": "no_answer",
+    "style": "ticket",
+    "must_include": [],
     "set": "tune"
   },
   {
     "id": "tq-09",
     "question": "Subscriber are bot able to listen thier voice messages from their voicemail box for the last 5 hours.",
-    "expected_docs": ["RB-010"],
+    "expected_docs": [
+      "RB-010"
+    ],
+    "type": "answerable",
+    "style": "ticket",
+    "must_include": [
+      "deposit failures above 1.5%",
+      "storage above 85%, vmctl purge"
+    ],
     "set": "tune"
   },
   {
     "id": "tq-10",
     "question": "Stuck orders due to provisoning blockage in the order management system. Subcriber were not able change thwir subscription plan or add new services to their account.",
-    "expected_docs": ["RB-008"],
+    "expected_docs": [
+      "RB-008"
+    ],
+    "type": "answerable",
+    "style": "ticket",
+    "must_include": [
+      "quarantine poison message",
+      "drain with concurrency 5"
+    ],
     "set": "tune"
   },
   {
     "id": "tq-11",
     "question": "Critical Reports generated from the read-only replica data base are not corret and giving faulty details to managements. There is a delay in database replication process from production to a read replica database",
-    "expected_docs": ["PM-005"],
+    "expected_docs": [
+      "PM-005"
+    ],
+    "type": "answerable",
+    "style": "ticket",
+    "must_include": [
+      "check replica lag before recycling pools",
+      "alert on seconds behind primary, not CPU"
+    ],
     "set": "tune"
   },
   {
     "id": "tq-12",
     "question": "There is report of a power outage in the area where our primary data center is located. There is no backup power supply available in the area.",
-    "expected_docs": ["PM-001"],
-    "set": "holdout"
+    "expected_docs": [
+      "PM-001"
+    ],
+    "type": "answerable",
+    "style": "ticket",
+    "must_include": [
+      "regional power event causes self-inflicted attach storm",
+      "fail over to HSS pod B"
+    ],
+    "set": "tune"
   },
   {
     "id": "tq-13",
     "question": "Multiple aircafts were not able to land at Chicago airport due to bad weather condition and poor visibility .",
     "expected_docs": [],
-    "set": "holdout"
+    "type": "no_answer",
+    "style": "ticket",
+    "must_include": [],
+    "set": "tune"
   },
   {
     "id": "tq-14",
     "question": "Subscriber are not able to make calls for the last 10 minutes.",
-    "expected_docs": ["RB-001"],
-    "set": "holdout"
+    "expected_docs": [
+      "RB-001"
+    ],
+    "type": "ambiguous",
+    "style": "ticket",
+    "must_include": [
+      "reject rate above 4.5% for 10 min",
+      "restart s6a-peer-02 or fail over to pod B"
+    ],
+    "set": "tune"
   },
   {
     "id": "tq-15",
     "question": "Roamining events are not being captured and processed by partners.This is delaying proper settlement of roaming charges",
-    "expected_docs": ["RB-009"],
+    "expected_docs": [
+      "RB-009"
+    ],
+    "type": "answerable",
+    "style": "ticket",
+    "must_include": [
+      "TAP files over 36 h late",
+      "request resend via clearing house"
+    ],
+    "set": "tune"
+  },
+  {
+    "id": "tq-16",
+    "question": "Operation team missed the SLA of customer bills delivery. There was delay in the completion of billing jobs last night.",
+    "expected_docs": [
+      "RB-002",
+      "PM-002"
+    ],
+    "type": "answerable",
+    "style": "ticket",
+    "must_include": [
+      "resume from checkpoint, never --restart after 03:00",
+      "notify Finance at 04:30"
+    ],
+    "set": "holdout"
+  },
+  {
+    "id": "tq-17",
+    "question": "Marketing team started a promotion and triggers thge mass notifcation on customer's mobile but messages are not being delivered promptly.",
+    "expected_docs": [
+      "RB-003"
+    ],
+    "type": "answerable",
+    "style": "ticket",
+    "must_include": [
+      "pause campaign, cap at 400 msg/s",
+      "OTP stays priority 1"
+    ],
+    "set": "holdout"
+  },
+  {
+    "id": "tq-18",
+    "question": "multiple subscriber are reporting delay in their new device activation.They are reporting no service on their newly purchaged deviuces.",
+    "expected_docs": [
+      "RB-008",
+      "PM-006"
+    ],
+    "type": "answerable",
+    "style": "ticket",
+    "must_include": [
+      "oldest message over 8 min",
+      "quarantine poison message"
+    ],
+    "set": "holdout"
+  },
+  {
+    "id": "tq-19",
+    "question": "I am not able to find focal points of Database team. who is the focal of that team whome i should call? Reporting team raised a concern that reported are getting generated on old data.",
+    "expected_docs": [
+      "PM-005"
+    ],
+    "type": "ambiguous",
+    "style": "question",
+    "must_include": [
+      "check replica lag (seconds behind primary)",
+      "DB team contact not in docs"
+    ],
+    "set": "tune"
+  },
+  {
+    "id": "tq-20",
+    "question": "Google captcha option is not showing when customer is trying yo perform the bill payment. Customer is not able to perform the payment due to this issue with google captcha.",
+    "expected_docs": [],
+    "type": "no_answer",
+    "style": "ticket",
+    "must_include": [],
+    "set": "holdout"
+  },
+  {
+    "id": "tq-21",
+    "question": "Security team perform an update of an expired certificate but this resulted issue in a 3rd party application. the new certifctae also need to be updated in all 3rd party applicxations using the old cert.",
+    "expected_docs": [
+      "PM-004"
+    ],
+    "type": "answerable",
+    "style": "ticket",
+    "must_include": [
+      "expired intermediate cert broke partner API mutual TLS",
+      "gwctl cert chain --check"
+    ],
+    "set": "tune"
+  },
+  {
+    "id": "tq-22",
+    "question": "Operation team mistakenly updated a software in production environment where as they were suppoed to perform the change in Testing env and this caused an outage of a critiocal application.",
+    "expected_docs": [],
+    "type": "no_answer",
+    "style": "ticket",
+    "must_include": [],
+    "set": "tune"
+  },
+  {
+    "id": "tq-23",
+    "question": "Trade-in portal is unavailable . This is affecting access to Digital function",
+    "expected_docs": [],
+    "type": "no_answer",
+    "style": "ticket",
+    "must_include": [],
+    "set": "tune"
+  },
+  {
+    "id": "tq-24",
+    "question": "Billing processes are coming up twice creating a production billing processing issue.",
+    "expected_docs": [],
+    "type": "no_answer",
+    "style": "ticket",
+    "must_include": [],
+    "set": "holdout"
+  },
+  {
+    "id": "tq-25",
+    "question": "Data ware house environment issue due to expired certificate",
+    "expected_docs": [
+      "PM-004"
+    ],
+    "type": "ambiguous",
+    "style": "ticket",
+    "must_include": [
+      "intermediate cert can expire before the leaf"
+    ],
+    "set": "tune"
+  },
+  {
+    "id": "tq-26",
+    "question": "Unable to launch CRM. Communication was sent to associates on cellsite.",
+    "expected_docs": [
+      "RB-004"
+    ],
+    "type": "ambiguous",
+    "style": "ticket",
+    "must_include": [
+      "agent-ui threads above 190 of 200",
+      "recycle pool one node at a time"
+    ],
+    "set": "holdout"
+  },
+  {
+    "id": "tq-27",
+    "question": "Suspicious authentication failures increases . security monitoring identified reapeated login failures seems malicious activities",
+    "expected_docs": [],
+    "type": "no_answer",
+    "style": "ticket",
+    "must_include": [],
+    "set": "holdout"
+  },
+  {
+    "id": "tq-28",
+    "question": "Reporting queries is running very slow against database replica causing delay in critical reports delivery for management review",
+    "expected_docs": [
+      "PM-005"
+    ],
+    "type": "answerable",
+    "style": "ticket",
+    "must_include": [
+      "check replica lag (seconds behind primary)",
+      "pause the bulk job"
+    ],
+    "set": "tune"
+  },
+  {
+    "id": "tq-29",
+    "question": "Security team mistakenly changed the DNS configuration ( CNAME) of the cloud WAF. Customer is getting page not found when tryiong to access self-serve portal",
+    "expected_docs": [],
+    "type": "no_answer",
+    "style": "ticket",
+    "must_include": [],
+    "set": "holdout"
+  },
+  {
+    "id": "tq-30",
+    "question": "Multiple Dynatrace alerts for errros on Digital plan change activity.",
+    "expected_docs": [
+      "RB-006",
+      "RB-008"
+    ],
+    "type": "ambiguous",
+    "style": "ticket",
+    "must_include": [
+      "gwctl breaker show / 5xx above 2% over 3 min"
+    ],
+    "set": "tune"
+  },
+  {
+    "id": "tq-31",
+    "question": "why are so many people waiting at the shoping mall gate today?",
+    "expected_docs": [],
+    "type": "no_answer",
+    "style": "question",
+    "must_include": [],
+    "set": "tune"
+  },
+  {
+    "id": "tq-32",
+    "question": "Custimer is not able to perform credit card payment at checkoput when ordering new watch.",
+    "expected_docs": [
+      "RB-005",
+      "PM-003"
+    ],
+    "type": "answerable",
+    "style": "ticket",
+    "must_include": [
+      "auth success below 96% over 5 min",
+      "route to secondary acquirer"
+    ],
+    "set": "holdout"
+  },
+  {
+    "id": "tq-33",
+    "question": "where do i escalate the network connecting issue causing multiple associates to access the CRM application",
+    "expected_docs": [
+      "RB-004"
+    ],
+    "type": "ambiguous",
+    "style": "question",
+    "must_include": [
+      "Care Apps L2 at 20 min",
+      "vendor support desk at 45 min"
+    ],
     "set": "holdout"
   }
-
 ]
